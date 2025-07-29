@@ -1,10 +1,8 @@
-from rest_framework import viewsets, filters, status
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework import viewsets, filters
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.parsers import FormParser, MultiPartParser
-from django.contrib.auth import logout
+from rest_framework.response import Response
 
 from .models import Book
 from .serializers import (
@@ -13,19 +11,17 @@ from .serializers import (
 from .pagination import CustomPageNumberPagination
 from .permissions import IsAdminOrReadOnly, IsOwnerOrAdmin
 
-
 class BookViewSet(viewsets.ModelViewSet):
-    queryset = Book.objects.all().order_by("-created_at")
-    serializer_class = BookSerializer
+    queryset = Book.objects.all().order_by('-created_at')
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAdminOrReadOnly]
     pagination_class = CustomPageNumberPagination
-
     parser_classes = [FormParser, MultiPartParser]
+
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ["title", "author__author"]
-    ordering_fields = ["created_at", "published_at", "review_count", "average_rating"]
-    ordering = ["-created_at"]
+    search_fields = ['title', 'author__author']
+    ordering_fields = ['created_at', 'published_at', 'review_count', 'average_rating']
+    ordering = ['-created_at']
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -43,7 +39,10 @@ class BookViewSet(viewsets.ModelViewSet):
         queryset = Book.objects.all().order_by("-created_at")
         min_rating = self.request.query_params.get("min_rating")
         if min_rating:
-            queryset = [book for book in queryset if book.average_rating and book.average_rating >= float(min_rating)]
+            queryset = [
+                book for book in queryset
+                if book.average_rating and book.average_rating >= float(min_rating)
+            ]
         return queryset
 
     def perform_create(self, serializer):
@@ -56,12 +55,3 @@ class BookViewSet(viewsets.ModelViewSet):
             return Response(serializer.errors, status=400)
         self.perform_create(serializer)
         return Response(serializer.data, status=201)
-
-
-class CustomLogoutApi(APIView):
-    authentication_classes = [SessionAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        logout(request)
-        return Response({"message": "로그아웃되었습니다."}, status=status.HTTP_200_OK)
