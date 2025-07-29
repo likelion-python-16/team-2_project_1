@@ -1,61 +1,24 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
-
-class UserManager(BaseUserManager):
-    def create_user(self, username, email, password=None, admin=False):
-        if not username:
-            raise ValueError("Username is required")
-        if not email:
-            raise ValueError("Email is required")
-        user = self.model(username=username, email=email, admin=admin)
-        user.set_password(password)
-        user.save()
-        return user
-
-    def create_superuser(self, username, email, password):
-        return self.create_user(username, email, password, admin=True)
-
-class User(AbstractBaseUser, PermissionsMixin):
-    username = models.CharField(max_length=50, unique=True)
-    email = models.CharField(max_length=255, unique=True)
-    password = models.CharField(max_length=255)
-    admin = models.BooleanField(default=False)
-
-    objects = UserManager()
-
-    USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['email']
-
-    def __str__(self):
-        return self.username
-
-    @property
-    def is_staff(self):
-        return self.admin
-
-    @property
-    def is_superuser(self):
-        return self.admin
+from users.models import User
+from django.core.validators import MinValueValidator
 
 
 class Author(models.Model):
-    author = models.CharField(max_length=50, unique=True)
+    author = models.CharField(max_length=50, db_index=True)
 
     def __str__(self):
-        return self.author
+        return f"<작가명: {self.author}>"
 
 
 class Book(models.Model):
-    title = models.CharField(max_length=200)
-    description = models.TextField(blank=True)
+    title = models.CharField(max_length=255, db_index=True)
+    description = models.TextField(blank=True, null=True)
     author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name='books')
     published_at = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='books')
-    # on_delete=models.CASCADE ensures that if the user is deleted, their books are also deleted
 
     def __str__(self):
-        return self.title
+        return f"<도서명: {self.title}>"
 
     @property
     def average_rating(self):
@@ -67,20 +30,24 @@ class Book(models.Model):
     @property
     def review_count(self):
         return self.reviews.count()
+    
+    @property
+    def like_count(self):
+        return self.likes.count()
 
 
 class Review(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews')
     content = models.TextField()
-    rating = models.DecimalField(max_digits=2, decimal_places=1)
+    rating = models.DecimalField(max_digits=2, decimal_places=1, validators=[MinValueValidator(0.0)])
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         unique_together = ('book', 'user')
 
     def __str__(self):
-        return f"{self.user.username} - {self.book.title}"
+        return f"<리뷰: {self.user.username} - {self.book.title}>"
 
 
 class Like(models.Model):
@@ -91,4 +58,4 @@ class Like(models.Model):
         unique_together = ('book', 'user')
 
     def __str__(self):
-        return f"{self.user.username} likes {self.book.title}"
+        return f"<좋아요: {self.user.username} - {self.book.title}>"
