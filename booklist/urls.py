@@ -1,19 +1,22 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from .views import BookViewSet
-from .api_views import CustomLogoutApi
+from rest_framework import permissions
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
 
-router = DefaultRouter()
-router.register(r'books', BookViewSet)
-#URL 경로	설명	name (템플릿용)
-# /books/ =  도서 전체 목록 조회	'book-list'
-# /books/<pk>/	= 도서 상세 조회	'book-detail'
-# /books/	= 도서 생성 (POST)	'book-list'
-# /books/<pk>/	= 도서 수정 (PUT/PATCH)	'book-detail'
-# /books/<pk>/	= 도서 삭제 (DELETE)	'book-detail'
-
+schema_view = get_schema_view(
+    openapi.Info(
+        title="BookList API",
+        default_version='v1',
+        description="도서 리뷰 프로젝트 API 문서",
+    ),
+    public=True,
+    permission_classes=[permissions.AllowAny],
+)
 
 urlpatterns = [
     path('', include(router.urls)),
     path('logout/', CustomLogoutApi.as_view(), name='logout'),
+
+    # ✅ Swagger 및 Redoc UI
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]
