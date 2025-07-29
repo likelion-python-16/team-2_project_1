@@ -9,12 +9,12 @@ from .serializers import (
     BookSerializer, BookDetailSerializer, BookCreateUpdateSerializer
 )
 from .pagination import CustomPageNumberPagination
-from .permissions import IsAdminOrReadOnly, IsOwnerOrAdmin
+from .permissions import IsAdminOrReadOnly
 
 class BookViewSet(viewsets.ModelViewSet):
     queryset = Book.objects.all().order_by('-created_at')
     authentication_classes = [SessionAuthentication]
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsAdminOrReadOnly]  # ✅ 한 번만 선언
     pagination_class = CustomPageNumberPagination
     parser_classes = [FormParser, MultiPartParser]
 
@@ -29,11 +29,6 @@ class BookViewSet(viewsets.ModelViewSet):
         elif self.action == 'retrieve':
             return BookDetailSerializer
         return BookCreateUpdateSerializer
-
-    def get_permissions(self):
-        if self.action in ['update', 'partial_update', 'destroy']:
-            return [IsOwnerOrAdmin()]
-        return super().get_permissions()
 
     def get_queryset(self):
         queryset = Book.objects.all().order_by("-created_at")
