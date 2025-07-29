@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import BookViewSet
-from .api_views import CustomLogoutApi
+from booklist.views import CustomLogoutApi
 
 router = DefaultRouter()
 router.register(r'books', BookViewSet)
