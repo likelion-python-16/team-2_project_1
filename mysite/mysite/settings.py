@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'rest_framework',  # Django REST Framework
     'rest_framework.authtoken',  # Token authentication
     'drf_yasg',  # Swagger documentation
+    'accounts',
 ]
 
 MIDDLEWARE = [
@@ -137,7 +138,7 @@ REST_FRAMEWORK = {
 }
 
 # Authentication settings
-LOGIN_REDIRECT_URL = '/booklist/list/'  # 로그인 후 리다이렉트할 URL 설정
-LOGOUT_REDIRECT_URL = "/api-auth/login/"  # 로그아웃 후 리다이렉트할 URL 설정
+# LOGIN_REDIRECT_URL = '/booklist/list/'  # 로그인 후 리다이렉트할 URL 설정
+# LOGOUT_REDIRECT_URL = "/api-auth/login/"  # 로그아웃 후 리다이렉트할 URL 설정
 
-AUTH_USER_MODEL = 'booklist.User'
+# AUTH_USER_MODEL = 'booklist.User'

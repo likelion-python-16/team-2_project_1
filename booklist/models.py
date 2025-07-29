@@ -1,4 +1,8 @@
 from django.db import models
+<<<<<<< HEAD
+from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator
+=======
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
 class UserManager(BaseUserManager):
@@ -36,6 +40,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     @property
     def is_superuser(self):
         return self.admin
+>>>>>>> 7f075f50645723c65aecc8b8b2ea5d9746f774c5
 
 
 class Author(models.Model):
