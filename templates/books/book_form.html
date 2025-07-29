@@ -1,0 +1,81 @@
+{ % load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  {% include "head.html" %}
+  <style>
+    .form-group { margin: 10px 0; }
+    label { display: block; margin-bottom: 5px; }
+    input, select { padding: 8px; width: 100%; max-width: 400px; }
+    button { margin-top: 15px; padding: 10px 20px; }
+  </style>
+</head>
+<body>
+  {% include "header.html" %}
+
+  <div class="container">
+    <h2>📘 도서 등록</h2>
+
+    <div class="form-group">
+      <label for="title">도서 제목</label>
+      <input type="text" id="title" placeholder="제목을 입력하세요 (최대 200자)">
+    </div>
+
+    <div class="form-group">
+      <label for="author">저자 ID</label>
+      <input type="number" id="author" placeholder="예: 3">
+    </div>
+
+    <button id="submitBtn">등록하기</button>
+  </div>
+
+  {% include "footer.html" %}
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    document.getElementById("submitBtn").addEventListener("click", async () => {
+      const title = document.getElementById("title").value.trim();
+      const author = document.getElementById("author").value.trim();
+
+      
+      if (!title) {
+        alert("제목을 입력해주세요.");
+        return;
+      }
+
+      if (title.length > 200) {
+        alert("제목은 200자 이내여야 합니다.");
+        return;
+      }
+
+      if (!author) {
+        alert("저자 ID를 입력해주세요.");
+        return;
+      }
+
+      try {
+        const response = await axiosInstance.post("/api/books/", {
+          title: title,
+          author: author
+        });
+
+        alert("도서 등록 완료!");
+        window.location.href = "{% url 'book_list' %}"; // 목록 페이지로 이동
+
+      } catch (err) {
+        console.error(err);
+        if (err.response.status === 400) {
+          alert("입력값 오류: " + JSON.stringify(err.response.data));
+        } else {
+          alert("등록 중 문제가 발생했습니다.");
+        }
+      }
+    });
+  </script>
+</body>
+</html>
+
+<!--API URL	POST /api/books/ 경로, 
+요청방식 post가 맞는지...
+ 보내는 데이터 형식	{ title: string, author: int } 확인하기 
+  저자(author) 필드 처리 방식	author는 ID? 이름? 객체?
+  -->

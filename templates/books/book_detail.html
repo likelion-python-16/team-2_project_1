@@ -1,0 +1,105 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  {% include "head.html" %}
+  <style>
+    .book-details { border: 1px solid #ccc; padding: 20px; margin: 20px 0; }
+    .book-title { font-size: 1.5em; font-weight: bold; }
+    .review-card { border-top: 1px dashed #999; margin-top: 10px; padding-top: 10px; }
+  </style>
+</head>
+<body>
+  {% include "header.html" %}
+
+  <div class="container">
+    <h2> 상세 </h2>
+    <div id="bookDetails" class="book-details"></div>
+
+    <h3> 목록 </h3>
+    <div id="reviewList"></div>
+
+    <h3> 수정 </h3>
+    <input type="text" id="editTitle" placeholder="제목 수정">
+    <input type="number" id="editAuthorId" placeholder="저자 ID">
+    <button id="editBtn">수정</button>
+
+    <h3> 삭제 </h3>
+    <button id="deleteBtn">삭제</button>
+  </div>
+
+  {% include "footer.html" %}
+
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    const bookId = new URLSearchParams(window.location.search).get("id");
+    const bookDetailsEl = document.getElementById("bookDetails");
+    const reviewListEl = document.getElementById("reviewList");
+
+    const loadBookDetails = async () => {
+      try {
+        const res = await axios.get(`/api/books/${bookId}/`);
+        const book = res.data;
+
+        bookDetailsEl.innerHTML = `
+          <div class="book-title">${book.title}</div>
+          <div>저자 ID: ${book.author}</div>
+          <div>평균 평점: ${book.avg_rating} ⭐</div>
+          <div>리뷰 수: ${book.review_count}</div>
+          <div>생성일자: ${book.created_at}</div>
+        `;
+      } catch (err) {
+        alert("도서 정보를 불러오지 못했습니다");
+      }
+    };
+
+    const loadReviews = async () => {
+      try {
+        const res = await axios.get(`/api/books/${bookId}/reviews/`);
+        reviewListEl.innerHTML = res.data.map(r => `
+          <div class="review-card">
+            <div>⭐ 평점: ${r.rating}</div>
+            <div>${r.content}</div>
+            <div>작성자: ${r.user}</div>
+          </div>
+        `).join("");
+      } catch (err) {
+        alert("리뷰 목록 불러오기 실패");
+      }
+    };
+
+    document.getElementById("editBtn").addEventListener("click", async () => {
+      const title = document.getElementById("editTitle").value;
+      const author = document.getElementById("editAuthorId").value;
+
+      try {
+        await axios.patch(`/api/books/${bookId}/`, { title, author });
+        alert("수정 성공");
+        loadBookDetails();
+      } catch (err) {
+        alert("수정 실패: " + err.response?.data?.detail || err.message);
+      }
+    });
+
+    document.getElementById("deleteBtn").addEventListener("click", async () => {
+      if (!confirm("정말 삭제하시겠습니까?")) return;
+
+      try {
+        await axios.delete(`/api/books/${bookId}/`);
+        alert("삭제되었습니다");
+        window.location.href = "/books/";
+      } catch (err) {
+        alert("삭제 실패: " + err.response?.data?.detail || err.message);
+      }
+    });
+
+    loadBookDetails();
+    loadReviews();
+  </script>
+</body>
+</html>
+<!--GET /api/books/<int:book_id>/ 이 URL로 도서 상세 정보 조회
+  GET /api/books/<int:book_id>/reviews/ 이 URL로 해당 도서의 리뷰 리스트
+    PATCH /api/books/<int:book_id>/ 으로 제목과 저자 ID 수정 가능?
+author 필드는 저자 ID(int)로 전달?
+DELETE /api/books/<int:book_id>/ 요청으로 도서 삭제 가능-->

@@ -1,0 +1,90 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  {% include "head.html" %}
+  <style>
+    .review-box {
+      border: 1px solid #ccc;
+      padding: 20px;
+      margin: 20px auto;
+      max-width: 600px;
+    }
+    .review-title {
+      font-size: 1.5em;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .btn-danger {
+      background-color: #ff4444;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  {% include "header.html" %}
+
+  <div class="container">
+    <h2>📄 리뷰 상세 조회</h2>
+    <div id="reviewBox" class="review-box"></div>
+    <button id="deleteBtn" class="btn-danger">🗑️ 삭제하기</button>
+  </div>
+
+  {% include "footer.html" %}
+
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    const reviewId = new URLSearchParams(window.location.search).get("id");
+    const reviewBox = document.getElementById("reviewBox");
+
+    const fetchReview = async () => {
+      try {
+        const res = await axios.get(`/api/reviews/${reviewId}/`);
+        const r = res.data;
+        reviewBox.innerHTML = `
+          <div class="review-title">도서 ID: ${r.book}</div>
+          <div>작성자: ${r.user}</div>
+          <div>평점: ${r.rating} ⭐</div>
+          <div>내용: ${r.content}</div>
+          <div>작성일: ${r.created_at}</div>
+        `;
+      } catch (err) {
+        alert("리뷰 정보를 불러오지 못했습니다.");
+        console.error(err);
+      }
+    };
+
+    document.getElementById("deleteBtn").addEventListener("click", async () => {
+      if (!confirm("정말 이 리뷰를 삭제하시겠습니까?")) return;
+
+      try {
+        await axios.delete(`/api/reviews/${reviewId}/`);
+        alert("리뷰가 삭제되었습니다.");
+        window.location.href = "/books/";
+      } catch (err) {
+        alert("삭제 실패: " + (err.response?.data?.detail || err.message));
+        console.error(err);
+      }
+    });
+
+    fetchReview();
+  </script>
+</body>
+</html>
+
+<!--GET /api/reviews/<id>/ — 이 URL이 맞는지?
+
+응답 JSON 형태가 다음과 같은지:
+
+json
+{
+  "id": 1,
+  "book": 3,
+  "user": "kim123",
+  "rating": 5,
+  "content": "정말 감동적인 책입니다.",
+  "created_at": "2025-07-29T12:00:00Z"

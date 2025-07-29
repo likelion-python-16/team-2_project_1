@@ -1,0 +1,20 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    {% include "head.html" %}
+</head>
+<body>
+    {% include "header.html" %}
+
+    {% block content %}
+    {% endblock %}
+
+    {% include "footer.html" %}
+
+    
+    <script src="{% static 'js/getCookie.js'%}"></script>
+    <script src="{% static 'js/axiosInstance.js'%}"></script>
+    <script src="{% static 'js/utils.js'%}"></script>
+</body>
+</html>

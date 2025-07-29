@@ -1,0 +1,37 @@
+{% load static %}
+<div class="header">
+  <h1>BookReview</h1>
+  <div class="user-actions">
+    <a href="{% url 'book-list' %}" class="nav-link">📖 목록 📖</a>
+
+    {% if user.is_authenticated %}
+    
+      <button id="logoutBtn" class="nav-link logout">🔓 로그아웃</button>
+    {% else %}
+      
+      <a
+        href="{% url 'rest_framework:login' %}?next={% url 'book-list' %}"
+        class="nav-link login"
+      >🔒 로그인</a>
+    {% endif %}
+  </div>
+</div>
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const logoutBtn = document.getElementById("logoutBtn");
+  
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", async () => {
+        try {
+          await axiosInstance.post("/api/custom-logout/");
+          window.location.href = "{% url 'book-list' %}";
+        } catch (err) {
+          console.error("로그아웃 실패:", err);
+          alert("로그아웃 중 오류가 발생했습니다.");
+        }
+      });
+    }
+  });
+  </script>
