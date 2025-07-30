@@ -26,14 +26,9 @@ class CustomPageNumberPagination(PageNumberPagination):
         return super().paginate_queryset(queryset, request, view)
 
     def get_paginated_response(self, data):
-        return Response(
-            OrderedDict([
-                ("data", data),
-                ("page_size", len(data)),
-                ("total_count", self.page.paginator.count),
-                ("page_count", self.page.paginator.num_pages),
-                ("current_page", self.page.number),
-                ("next", self.get_next_link()),
-                ("previous", self.get_previous_link()),
-            ])
-        )
+        return Response({
+            "count": self.page.paginator.count,
+            "next": self.get_next_link(),
+            "previous": self.get_previous_link(),
+            "results": data,
+        })

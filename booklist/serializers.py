@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import Book, Author, Review, User
+from .models import Book, Author, Review, Like, User
+
 
 class AuthorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -19,12 +20,13 @@ class BookSerializer(serializers.ModelSerializer):
     author_name = serializers.CharField(source='author.author', read_only=True)
     average_rating = serializers.FloatField(read_only=True)
     review_count = serializers.IntegerField(read_only=True)
+    like_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Book
         fields = [
             'id', 'title', 'author', 'author_name',
-            'average_rating', 'review_count', 'created_at'
+            'average_rating', 'review_count', 'like_count', 'created_at'
         ]
 
 
@@ -32,14 +34,16 @@ class BookDetailSerializer(serializers.ModelSerializer):
     author_name = serializers.CharField(source='author.author', read_only=True)
     average_rating = serializers.FloatField(read_only=True)
     review_count = serializers.IntegerField(read_only=True)
+    like_count = serializers.IntegerField(read_only=True)
     reviews = ReviewSerializer(many=True, read_only=True)
 
     class Meta:
         model = Book
         fields = [
             'id', 'title', 'description', 'author', 'author_name',
-            'published_at', 'created_at', 'average_rating',
-            'review_count', 'reviews'
+            'published_at', 'created_at',
+            'average_rating', 'review_count', 'like_count',
+            'reviews'
         ]
 
 

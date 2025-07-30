@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>회원가입</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+    <script src="{% static 'js/getCookie.js' %}"></script>
+</head>
+<body>
+    <div class="form-container">
+        <h2>회원가입</h2>
+        
+        <form id="registerForm">
+            <input type="text" id="username" placeholder="사용자명 (필수)" required>
+            <input type="email" id="email" placeholder="이메일 (필수)" required>
+            <input type="password" id="password" placeholder="비밀번호 (필수)" required>
+            <input type="password" id="password_confirm" placeholder="비밀번호 확인 (필수)" required>
+            <button type="submit">회원가입</button>
+        </form>
+        
+        <div id="message"></div>
+        <div class="link-container">
+            <a href="{% url 'users:login_page' %}">이미 계정이 있으신가요? 로그인</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const password = document.getElementById('password').value;
+            const passwordConfirm = document.getElementById('password_confirm').value;
+            const messageDiv = document.getElementById('message');
+
+            if (password !== passwordConfirm) {
+                messageDiv.innerHTML = '<div class="error-message">비밀번호가 일치하지 않습니다.</div>';
+                return;
+            }
+
+            const formData = {
+                username: document.getElementById('username').value,
+                email: document.getElementById('email').value,
+                password,
+                password_confirm: passwordConfirm
+            };
+
+            try {
+                const response = await fetch('/users/api/register/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    messageDiv.innerHTML = '<div class="success-message">회원가입 성공! 로그인 페이지로 이동중...</div>';
+                    document.getElementById('registerForm').reset();
+                    setTimeout(() => window.location.href = '/users/login/', 2000);
+                } else {
+                    const errorMessage = data.username ? '사용자명: ' + data.username[0] :
+                                         data.email ? '이메일: ' + data.email[0] : '회원가입에 실패했습니다.';
+                    messageDiv.innerHTML = '<div class="error-message">' + errorMessage + '</div>';
+                }
+            } catch (error) {
+                messageDiv.innerHTML = '<div class="error-message">네트워크 오류가 발생했습니다.</div>';
+            }
+        });
+    </script>
+</body>
+</html>
