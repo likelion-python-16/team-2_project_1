@@ -58,3 +58,18 @@ class BookCreateUpdateSerializer(serializers.ModelSerializer):
         if len(value) > 200:
             raise serializers.ValidationError("제목은 200자 이내여야 합니다.")
         return value
+    
+
+class ReviewSerializer(serializers.ModelSerializer):
+    user_name = serializers.CharField(source='user.username', read_only=True)
+    
+    class Meta:
+        model = Review
+        fields = '__all__'
+        read_only_fields = ['user', 'created_at']
+
+    def get_book_title(self, obj):
+        return obj.book.title
+    
+    def get_author_name(self, obj):
+        return obj.book.author.author

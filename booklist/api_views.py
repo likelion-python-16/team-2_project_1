@@ -1,19 +1,17 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 from rest_framework import status, filters
-from django.contrib.auth import logout, login, authenticate
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import SessionAuthentication
-from rest_framework.parsers import FormParser, MultiPartParser
-from rest_framework import viewsets
-from .models import Book
-from users.models import User
-from .serializers import BookSerializer, BookDetailSerializer, BookCreateUpdateSerializer
-from .pagination import CustomPageNumberPagination
-from .permissions import IsAdminOrReadOnly
-from rest_framework.permissions import AllowAny
-from django.db.models import Count, Avg
 
+from rest_framework import viewsets
+from .models import Book,Review
+
+from .serializers import BookSerializer, BookDetailSerializer, BookCreateUpdateSerializer ,ReviewSerializer
+from .pagination import CustomPageNumberPagination
+from .permissions import IsAdminOrReadOnly ,IsOwnerOrAdmin
+
+from django.db.models import Count, Avg
+from django.db import IntegrityError
+from rest_framework.exceptions import ValidationError
 
 
 class BookViewSet(viewsets.ModelViewSet):
@@ -42,3 +40,25 @@ class BookViewSet(viewsets.ModelViewSet):
         elif self.action == 'retrieve':
             return BookDetailSerializer
         return BookCreateUpdateSerializer
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+    permission_classes = [IsOwnerOrAdmin]
+    def perform_create(self, serializer):
+        try:
+            serializer.save(user=self.request.user)
+        except IntegrityError:
+            raise ValidationError("이미 이 책에 대한 리뷰를 작성하셨습니다.")
+    
+    def update(self, request, *args, **kwargs):
+        review = self.get_object()
+        if review.user != request.user:
+            return Response({"detail": "수정 권한 없음"}, status=403)
+        return super().update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        review = self.get_object()
+        if not request.user.admin:
+            return Response({"detail": "삭제 권한 없음"}, status=403)
+        return super().destroy(request, *args, **kwargs)

@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'booklist',
     'users',
     'rest_framework',
+    'drf_yasg',  # Swagger documentation
 ]
 
 MIDDLEWARE = [
