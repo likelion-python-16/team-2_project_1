@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+  <h2>📘 도서 상세 정보</h2>
+
+  <div class="book-detail-card">
+    <div class="book-title">{{ book.title }}</div>
+    <div><strong>저자:</strong> {{ book.author.author }}</div>
+    <div><strong>출간일:</strong> {{ book.published_at }}</div>
+    <div><strong>등록일:</strong> {{ book.created_at }}</div>
+    <div><strong>리뷰 수:</strong> {{ book.reviews.count }}</div>
+    <div><strong>평균 평점:</strong> {{ book.average_rating }} ⭐</div>
+    <div><strong>설명:</strong> {{ book.description }}</div>
+  </div>
+
+  <hr>
+
+  <h3>✍ 리뷰 작성</h3>
+  <form id="reviewForm">
+    <textarea id="reviewContent" placeholder="리뷰를 작성해주세요" required></textarea>
+    <input type="number" id="reviewRating" placeholder="평점 (0.0~9.9)" step="0.1" min="0" max="9.9" required>
+    <button type="submit">리뷰 등록</button>
+  </form>
+
+  <div id="reviewMessage"></div>
+
+  <hr>
+
+  <h3>📄 리뷰 목록</h3>
+  <div id="reviewList">
+    {% for review in book.reviews.all %}
+      <div class="review-card">
+        <div><strong>{{ review.user.username }}</strong> | {{ review.created_at }}</div>
+        <div>⭐ {{ review.rating }}</div>
+        <div>{{ review.content }}</div>
+      </div>
+    {% empty %}
+      <p>등록된 리뷰가 없습니다.</p>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+    document.getElementById("reviewForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const content = document.getElementById("reviewContent").value;
+    const rating = document.getElementById("reviewRating").value;
+    const messageEl = document.getElementById("reviewMessage");
+    const reviewList = document.getElementById("reviewList");
+    const bookId = "{{ book.id }}";
+
+    try {
+        const response = await axios.post(`/books/api/reviews/`, {
+        book: bookId,
+        content,
+        rating
+        }, {
+        headers: {
+            "X-CSRFToken": getCookie("csrftoken"),
+            "Content-Type": "application/json"
+        },
+        withCredentials: true
+        });
+
+        const newReview = response.data;
+
+        const reviewHTML = `
+        <div class="review-card">
+            <div><strong>${newReview.user_name}</strong> | ${newReview.created_at}</div>
+            <div>⭐ ${newReview.rating}</div>
+            <div>${newReview.content}</div>
+        </div>
+        `;
+
+        reviewList.insertAdjacentHTML("afterbegin", reviewHTML);
+
+        // 성공 메시지 + 입력 초기화
+        messageEl.innerText = "✅ 리뷰가 등록되었습니다.";
+        document.getElementById("reviewForm").reset();
+
+    } catch (error) {
+    console.error("리뷰 등록 실패", error);
+    const messageEl = document.getElementById("reviewMessage");
+
+    if (error.response && error.response.data) {
+        const data = error.response.data;
+
+        // 배열 형태로 메시지가 왔을 때
+        if (Array.isArray(data)) {
+        messageEl.innerText = `❌ ${data[0]}`;
+        }
+        // 객체 형태인데 non_field_errors가 있을 때
+        else if (data.non_field_errors) {
+        messageEl.innerText = `❌ ${data.non_field_errors[0]}`;
+        }
+        // 그 외 detail 등
+        else if (data.detail) {
+        messageEl.innerText = `❌ ${data.detail}`;
+        }
+        else {
+        messageEl.innerText = "❌ 리뷰 등록에 실패했습니다.";
+        }
+    } else {
+        messageEl.innerText = "❌ 네트워크 오류 또는 알 수 없는 에러";
+    }
+    }
+    });
+</script>
+{% endblock %}

@@ -1,23 +1,20 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 from rest_framework import status, filters
-from django.contrib.auth import logout, login, authenticate
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import SessionAuthentication
-from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework import viewsets
-from .models import Book
-from users.models import User
-from .serializers import BookSerializer, BookDetailSerializer, BookCreateUpdateSerializer
+from .models import Book, Review
+from .serializers import BookSerializer, BookDetailSerializer, BookCreateUpdateSerializer, ReviewSerializer
 from .pagination import CustomPageNumberPagination
 from .permissions import IsAdminOrReadOnly
-from rest_framework.permissions import AllowAny
 from django.db.models import Count, Avg
+from django.db import IntegrityError
+from rest_framework.exceptions import ValidationError
 
 
 
 class BookViewSet(viewsets.ModelViewSet):
     queryset = Book.objects.all().order_by("-created_at")
+    # queryset = Book.objects.all()
     serializer_class = BookSerializer
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAdminOrReadOnly]
@@ -42,3 +39,14 @@ class BookViewSet(viewsets.ModelViewSet):
         elif self.action == 'retrieve':
             return BookDetailSerializer
         return BookCreateUpdateSerializer
+    
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+
+    def perform_create(self, serializer):
+        try:
+            serializer.save(user=self.request.user)
+        except IntegrityError:
+            raise ValidationError("이미 이 책에 대한 리뷰를 작성하셨습니다.")
