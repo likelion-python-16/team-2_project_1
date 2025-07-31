@@ -2,13 +2,15 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status, filters
 from rest_framework.authentication import SessionAuthentication
 from rest_framework import viewsets
-from .models import Book, Review
-from .serializers import BookSerializer, BookDetailSerializer, BookCreateUpdateSerializer, ReviewSerializer
+from .models import Book, Review, Like
+from .serializers import BookSerializer, BookDetailSerializer, BookCreateUpdateSerializer, ReviewSerializer, LikeSerializer
 from .pagination import CustomPageNumberPagination
 from .permissions import IsAdminOrReadOnly
 from django.db.models import Count, Avg
 from django.db import IntegrityError
 from rest_framework.exceptions import ValidationError
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 
 
@@ -50,3 +52,24 @@ class ReviewViewSet(viewsets.ModelViewSet):
             serializer.save(user=self.request.user)
         except IntegrityError:
             raise ValidationError("이미 이 책에 대한 리뷰를 작성하셨습니다.")
+        
+
+class LikeViewSet(viewsets.ModelViewSet):
+    queryset = Like.objects.all()
+    serializer_class = LikeSerializer
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        book_id = request.data.get('book')
+        user = request.user
+
+        existing_like = Like.objects.filter(book=book_id, user=user).first()
+
+        if existing_like:
+            existing_like.delete()
+            return Response({"detail": "좋아요가 취소되었습니다."}, status=status.HTTP_200_OK)
+        else:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save(user=user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)

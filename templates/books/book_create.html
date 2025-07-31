@@ -6,13 +6,20 @@
 
   <form id="bookCreateForm">
     <label>제목: <input type="text" name="title" required></label><br>
-    <label>저자: 
-        <select name="author" required>
+
+    <label>저자:
+      <select name="author" id="authorSelect">
+        <option value="">-- 선택 안함 (새 저자 입력 시) --</option>
         {% for author in authors %}
-            <option value="{{ author.id }}">{{ author.author }}</option>
+          <option value="{{ author.id }}">{{ author.author }}</option>
         {% endfor %}
-        </select>
+      </select>
     </label><br>
+
+    <label>(선택)원하는 저자가 없다면 여기서 추가해주세요:
+      <input type="text" name="author_name" id="authorNameInput" placeholder="새 저자 이름">
+    </label><br>
+
     <label>출간일: <input type="date" name="published_at" required></label><br>
     <label>설명: <textarea name="description" required></textarea></label><br>
     <button type="submit">📚 등록</button>
@@ -20,27 +27,17 @@
 </div>
 
 <script>
-function getCookie(name) {
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== "") {
-    const cookies = document.cookie.split(";");
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      // 이름이 일치하는 쿠키를 찾기
-      if (cookie.startsWith(name + "=")) {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
-  }
-  return cookieValue;
-}
-
 document.getElementById("bookCreateForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const form = e.target;
   const formData = new FormData(form);
+
+  const authorName = form.querySelector("#authorNameInput").value.trim();
+  if (authorName) {
+    formData.append("author_name", authorName);
+    formData.delete("author");
+  }
 
   try {
     await axios.post("/books/api/books/", formData, {

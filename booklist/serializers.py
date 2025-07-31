@@ -48,9 +48,12 @@ class BookDetailSerializer(serializers.ModelSerializer):
 
 
 class BookCreateUpdateSerializer(serializers.ModelSerializer):
+    author = serializers.PrimaryKeyRelatedField(queryset=Author.objects.all(), required=False)
+    author_name = serializers.CharField(write_only=True, required=False)
+
     class Meta:
         model = Book
-        fields = ['title', 'description', 'author', 'published_at']
+        fields = ['title', 'description', 'author', 'author_name', 'published_at']
 
     def validate_title(self, value):
         if not value.strip():
@@ -58,6 +61,20 @@ class BookCreateUpdateSerializer(serializers.ModelSerializer):
         if len(value) > 200:
             raise serializers.ValidationError("제목은 200자 이내여야 합니다.")
         return value
+
+    def validate(self, data):
+        if not data.get("author") and not data.get("author_name"):
+            raise serializers.ValidationError("기존 author 또는 author_name 중 하나는 반드시 입력해야 합니다.")
+        return data
+
+    def create(self, validated_data):
+        author = validated_data.pop("author", None)
+        author_name = validated_data.pop("author_name", None)
+
+        if not author and author_name:
+            author, _ = Author.objects.get_or_create(author=author_name)
+
+        return Book.objects.create(author=author, **validated_data)
     
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -73,3 +90,13 @@ class ReviewSerializer(serializers.ModelSerializer):
     
     def get_author_name(self, obj):
         return obj.book.author.author
+    
+
+class LikeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Like
+        fields = '__all__'
+        read_only_fields = ['user']
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)

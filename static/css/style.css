@@ -9,3 +9,17 @@
 .controls { 
     margin: 20px 0; 
 }
+
+#book-like {
+background-color: white;
+color: black;
+border: 1px solid gray;
+padding: 10px 20px;
+cursor: pointer;
+}
+
+#book-like.liked {
+background-color: crimson;
+color: white;
+border: 1px solid darkred;
+}

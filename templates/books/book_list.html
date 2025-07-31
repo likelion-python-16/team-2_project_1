@@ -54,11 +54,27 @@
                     <div>저자: ${book.author_name}</div>
                     <div>평균 평점: ${book.average_rating ?? "작성된 리뷰가 없습니다."} ⭐</div>
                     <div>리뷰 수: ${book.review_count}</div>
-                    <div>출간일: ${book.published_at}</div>
-                    <div>등록일: ${book.created_at}</div>
+                    <div>좋아요: ${book.like_count}</div>
+                    <div>출간일: ${formatDate(book.published_at)}</div>
+                    <div>등록일: ${formatDate(book.created_at, true)}</div>
                 </div>
             </a>
         `).join("");
+    };
+
+    const formatDate = (dateString, withTime = false) => {
+        const date = new Date(dateString);
+        const yyyy = date.getFullYear();
+        const mm = String(date.getMonth() + 1).padStart(2, "0");
+        const dd = String(date.getDate()).padStart(2, "0");
+
+        if (withTime) {
+            const hh = String(date.getHours()).padStart(2, "0");
+            const min = String(date.getMinutes()).padStart(2, "0");
+            return `${yyyy}/${mm}/${dd} ${hh}:${min}`;
+        }
+
+        return `${yyyy}/${mm}/${dd}`;
     };
 
     const renderPagination = (totalCount, currentPage) => {
