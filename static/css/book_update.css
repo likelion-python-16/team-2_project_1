@@ -1,0 +1,94 @@
+.form-wrapper {
+    max-width: 500px;
+    margin: 50px auto;
+    padding: 30px 40px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+    font-family: 'Pretendard', sans-serif;
+  }
+  
+  h2 {
+    text-align: center;
+    color: #1a202c;
+    margin-bottom: 24px;
+    font-size: 1.5rem;
+  }
+  
+  .form-group {
+    margin-bottom: 16px;
+  }
+  
+  .form-group label {
+    display: block;
+    font-size: 0.95rem;
+    color: #333;
+    margin-bottom: 6px;
+  }
+  
+  .form-group input,
+  .form-group textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    background-color: #f9f9f9;
+  }
+  
+  .form-group textarea {
+    resize: vertical;
+  }
+  
+  .button-group {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+  
+  .primary-btn {
+    background-color: #d1d5db;  /* 연한 회색 */
+    color: #111827;             /* 짙은 회색 텍스트 */
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .primary-btn:hover {
+    background-color: #9ca3af;  /* hover 시 진한 회색 */
+  }
+  
+  
+  .secondary-btn {
+    background-color: #f3f4f6;
+    color: #374151;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+  }
+  
+  .secondary-btn:hover {
+    background-color: #e5e7eb;
+  }
+  
+  .small-label {
+    font-size: 0.85rem;
+    color: #666;
+  }
+
+  input[type="date"] {
+    font-family: inherit;
+    font-size: 0.95rem;
+    padding: 10px 14px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    height: 42px;  /* 다른 input과 높이 맞추기 */
+    box-sizing: border-box;
+  }

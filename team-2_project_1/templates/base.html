@@ -1,0 +1,19 @@
+<nav>
+    {% if user.is_authenticated %}
+        <span>{{ user.username }}님 환영합니다!</span>
+        
+        {% if user.is_superuser %}
+            <a href="/admin/">슈퍼관리자</a>
+            <a href="/api/user-management/">사용자관리</a>
+        {% elif user.is_staff %}
+            <a href="/admin/">관리자</a>
+            <a href="/api/books/">도서관리</a>
+        {% endif %}
+        
+        <a href="/api/reviews/my_reviews/">내 리뷰</a>
+        <a href="#" id="logout-btn">로그아웃</a>
+    {% else %}
+        <a href="/login/">로그인</a>
+        <a href="/register/">회원가입</a>
+    {% endif %}
+</nav>
