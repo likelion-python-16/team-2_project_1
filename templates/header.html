@@ -1,0 +1,44 @@
+{% load static %}
+
+<header>
+  <h1>BookReview</h1>
+  <div class="nav-links">
+    <a href="{% url 'booklist:list' %}">📖 목록</a>
+    
+    {% if request.user.admin %}
+      <a href="{% url 'booklist:create' %}">📚 책 생성</a>
+    {% endif %}
+    
+    {% if user.is_authenticated %}
+      <button id="logoutBtn">🔓 로그아웃</button>
+    {% else %}
+      <a href="{% url 'users:login_page' %}">🔒 로그인</a>
+    {% endif %}
+  </div>
+</header>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", async () => {
+        const confirmed = window.confirm("정말 로그아웃 하시겠습니까?");
+        if (!confirmed) return;
+
+        try {
+          await axios.post("/users/api/logout/", {}, {
+            headers: {
+              "X-CSRFToken": getCookie("csrftoken"),
+            },
+            withCredentials: true
+          });
+          window.location.href = "/users/login/";
+        } catch (err) {
+          console.error("로그아웃 실패:", err);
+          alert("로그아웃 중 오류가 발생했습니다.");
+        }
+      });
+    }
+  });
+</script>

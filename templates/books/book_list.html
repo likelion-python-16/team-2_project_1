@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{% static 'css/book_list.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h2>📚 도서 목록</h2>
+
+  <div class="controls-wrapper">
+    <div class="controls">
+      <input type="text" id="searchInput" placeholder="도서 제목 검색">
+      <select id="orderingSelect">
+        <option value="">-- 정렬 선택 --</option>
+        <option value="created_at">등록일 오름차순</option>
+        <option value="-created_at">등록일 내림차순</option>
+        <option value="published_at">출간일 오름차순</option>
+        <option value="-published_at">출간일 내림차순</option>
+        <option value="annotated_review_count">리뷰 적은 순</option>
+        <option value="-annotated_review_count">리뷰 많은 순</option>
+        <option value="annotated_average_rating">평균평점 낮은 순</option>
+        <option value="-annotated_average_rating">평균평점 높은 순</option>
+      </select>
+      <button id="searchBtn">🔍 검색</button>
+    </div>
+  </div>
+
+  <div id="bookCountWrapper">
+    <p>총 <span id="bookCount">0</span>권</p>
+  </div>
+
+  <div id="bookList"></div>
+  <div id="pagination"></div>
+</div>
+
+<script>
+  const bookListEl = document.getElementById("bookList");
+  const paginationEl = document.getElementById("pagination");
+  const PAGE_SIZE = 5;
+
+  const fetchBooks = async (params = {}) => {
+    try {
+      const response = await axios.get("/books/api/books/", {
+        params,
+        headers: { "X-CSRFToken": getCookie("csrftoken") }
+      });
+      const data = response.data;
+      renderBooks(data);
+      document.getElementById("bookCount").textContent = data.count;
+      const currentPage = params.page || 1;
+      renderPagination(data.count, currentPage);
+    } catch (err) {
+      console.error("도서 불러오기 실패", err);
+      alert("도서 목록을 불러오는 중 오류가 발생했습니다.");
+    }
+  };
+
+  const renderBooks = (data) => {
+    bookListEl.innerHTML = data.results.map(book => `
+      <a href="/books/detail/${book.id}/" class="book-link">
+        <div class="book-card">
+          <div class="book-title">${book.title}</div>
+          <div>저자: ${book.author_name}</div>
+          <div>평균 평점: ${book.average_rating ?? "작성된 리뷰가 없습니다."} ⭐</div>
+          <div>리뷰 수: ${book.review_count}</div>
+          <div>좋아요: ${book.like_count}</div>
+          <div>출간일: ${formatDate(book.published_at)}</div>
+          <div>등록일: ${formatDate(book.created_at, true)}</div>
+        </div>
+      </a>
+    `).join("");
+  };
+
+  const formatDate = (dateString, withTime = false) => {
+    const date = new Date(dateString);
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const dd = String(date.getDate()).padStart(2, "0");
+
+    if (withTime) {
+      const hh = String(date.getHours()).padStart(2, "0");
+      const min = String(date.getMinutes()).padStart(2, "0");
+      return `${yyyy}/${mm}/${dd} ${hh}:${min}`;
+    }
+
+    return `${yyyy}/${mm}/${dd}`;
+  };
+
+  const renderPagination = (totalCount, currentPage) => {
+    const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+    const pageGroupSize = 6;
+    const groupStart = Math.floor((currentPage - 1) / pageGroupSize) * pageGroupSize + 1;
+    const groupEnd = Math.min(groupStart + pageGroupSize - 1, totalPages);
+
+    let html = "";
+
+    if (currentPage > 1) {
+      html += `<button onclick="fetchBooks({ page: ${currentPage - 1} })">◀</button>`;
+    }
+
+    for (let i = groupStart; i <= groupEnd; i++) {
+      if (i === currentPage) {
+        html += `<button class="active">${i}</button>`;
+      } else {
+        html += `<button onclick="fetchBooks({ page: ${i} })">${i}</button>`;
+      }
+    }
+
+    if (currentPage < totalPages) {
+      html += `<button onclick="fetchBooks({ page: ${currentPage + 1} })">▶</button>`;
+    }
+
+    paginationEl.innerHTML = html;
+  };
+
+  document.getElementById("searchBtn").addEventListener("click", () => {
+    const search = document.getElementById("searchInput").value;
+    const ordering = document.getElementById("orderingSelect").value;
+    fetchBooks({ search, ordering, page: 1 });
+  });
+
+  fetchBooks({ page: 1 });
+</script>
+{% endblock %}
+
+<!-- 테스트용 커밋 -->

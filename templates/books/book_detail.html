@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{% static 'css/book_detail.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="book-detail-container">
+  <div class="book-detail-title">📘 도서 상세 정보</div>
+
+  <!-- 도서 정보 박스 ㅈㄷㄱㅈㅂㄷㄱㅂㅈㄷㄱ-->
+  <div class="book-detail-box">
+    <div class="book-title">{{ book.title }}</div>
+    <div><strong>저자:</strong> {{ book.author.author }}</div>
+    <div><strong>출간일:</strong> {{ book.published_at|date:"Y/m/d" }}</div>
+    <div><strong>등록일:</strong> {{ book.created_at|date:"Y/m/d H:i" }}</div>
+    <div><strong>리뷰 수:</strong> {{ book.reviews.count }}</div>
+    <div><strong>좋아요:</strong> {{ book.like_count }}</div>
+    <div><strong>평균 평점:</strong> {{ book.average_rating }} ⭐</div>
+    <div><strong>설명:</strong> {{ book.description }}</div>
+  </div>
+
+<!-- 좋아요는 왼쪽 / 수정 삭제는 오른쪽 -->
+<div class="book-detail-controls">
+  <button id="book-like"
+        data-liked="{% if is_liked %}true{% else %}false{% endif %}"
+        class="like-button {% if is_liked %}liked{% endif %}">
+    💛 좋아요
+  </button>
+
+  {% if request.user.is_staff %}
+  <div class="action-buttons">
+    <a href="/books/update/{{book.id}}" class="edit">수정</a>
+    <a href="/books/delete/{{book.id}}" class="delete">삭제</a>
+  </div>
+  {% endif %}
+</div>
+  <h3>✍ 리뷰 작성</h3>
+  <form id="reviewForm" class="review-form">
+    <textarea id="reviewContent" placeholder="리뷰를 작성해주세요" required></textarea>
+  
+    <div class="review-form-bottom-row">
+      <input type="number" id="reviewRating" placeholder="평점 (0.0~10.0)" step="1.0" min="0" max="10.0" required>
+  
+      <button type="submit" class="review-submit-btn">리뷰 등록</button>
+    </div>
+  </form>
+  <div id="reviewMessage"></div>
+
+  <hr>
+
+  <h3>📄 리뷰 목록</h3>
+  <div id="reviewList">
+    {% for review in book.reviews.all %}
+      <div class="review-card" data-review-id="{{ review.id }}">
+        <div><strong>{{ review.user.username }}</strong> | {{ review.created_at|date:"Y/m/d H:i" }}</div>
+        <div class="review-rating">⭐ {{ review.rating }}</div>
+        <div class="review-content">{{ review.content }}</div>
+
+        {% if request.user == review.user %}
+          <button class="review-action-btn edit-btn">수정</button>
+          <button class="review-action-btn delete-btn">삭제</button>
+        {% endif %}
+      </div>
+    {% empty %}
+      <p>등록된 리뷰가 없습니다.</p>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+// 기존 JS 그대로 유지
+document.addEventListener("DOMContentLoaded", () => {
+  const bookId = "{{ book.id }}";
+  const likeBtn = document.getElementById("book-like");
+  const reviewList = document.getElementById("reviewList");
+  const messageEl = document.getElementById("reviewMessage");
+
+  likeBtn.addEventListener("click", async () => {
+    try {
+      const response = await fetch("/books/api/likes/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCookie("csrftoken"),
+        },
+        body: JSON.stringify({ book: bookId }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        if (data.detail === "좋아요 등록됨") {
+          likeBtn.classList.add("liked");
+          likeBtn.dataset.liked = "true";
+        } else if (data.detail === "좋아요 취소됨") {
+          likeBtn.classList.remove("liked");
+          likeBtn.dataset.liked = "false";
+        }
+        location.reload();
+      } else {
+        alert(data.detail || "오류가 발생했습니다.");
+      }
+    } catch (err) {
+      console.error("에러 발생:", err);
+      alert("요청에 실패했습니다.");
+    }
+  });
+
+  document.getElementById("reviewForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const content = document.getElementById("reviewContent").value;
+    const rating = parseFloat(document.getElementById("reviewRating").value);
+
+    if (rating < 0 || rating > 10) {
+      messageEl.innerText = "❌ 평점은 0.0부터 10.0 사이여야 합니다.";
+      return;
+    }
+
+    try {
+      const response = await axios.post(`/books/api/reviews/`, {
+        book: bookId,
+        content,
+        rating,
+      }, {
+        headers: {
+          "X-CSRFToken": getCookie("csrftoken"),
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      });
+
+      messageEl.innerText = "✅ 리뷰가 등록되었습니다.";
+      document.getElementById("reviewForm").reset();
+      location.reload();
+    } catch (error) {
+      const data = error.response?.data || {};
+      if (Array.isArray(data)) {
+        messageEl.innerText = `❌ ${data[0]}`;
+      } else if (data.non_field_errors) {
+        messageEl.innerText = `❌ ${data.non_field_errors[0]}`;
+      } else if (data.detail) {
+        messageEl.innerText = `❌ ${data.detail}`;
+      } else {
+        messageEl.innerText = "❌ 리뷰 등록에 실패했습니다.";
+      }
+    }
+  });
+
+  reviewList.addEventListener("click", async (e) => {
+    const card = e.target.closest(".review-card");
+    const reviewId = card?.dataset.reviewId;
+    if (!reviewId) return;
+
+    const contentEl = card.querySelector(".review-content");
+    const ratingEl = card.querySelector(".review-rating");
+
+    if (e.target.classList.contains("edit-btn")) {
+      const oldContent = contentEl?.innerText ?? "";
+      const oldRating = parseFloat(ratingEl?.innerText) || 0;
+
+      const newContent = prompt("리뷰를 수정하세요:", oldContent);
+      if (newContent === null) return;
+
+      const newRating = prompt("평점을 수정하세요 (0~10):", oldRating);
+      if (newRating === null) return;
+
+      const parsedRating = parseFloat(newRating);
+      if (isNaN(parsedRating) || parsedRating < 0 || parsedRating > 10) {
+        alert("평점은 0.0부터 10.0 사이의 숫자여야 합니다.");
+        return;
+      }
+
+      try {
+        const response = await axios.patch(`/books/api/reviews/${reviewId}/`, {
+          content: newContent,
+          rating: parsedRating,
+        }, {
+          headers: {
+            "X-CSRFToken": getCookie("csrftoken"),
+            "Content-Type": "application/json",
+          },
+        });
+
+        contentEl.innerText = response.data.content;
+        ratingEl.innerText = response.data.rating;
+        alert("리뷰가 수정되었습니다.");
+      } catch (err) {
+        alert("수정 중 오류 발생");
+      }
+    }
+
+    if (e.target.classList.contains("delete-btn")) {
+      if (!confirm("정말 삭제하시겠습니까?")) return;
+
+      try {
+        await axios.delete(`/books/api/reviews/${reviewId}/`, {
+          headers: {
+            "X-CSRFToken": getCookie("csrftoken"),
+          },
+        });
+        card.remove();
+        alert("리뷰가 삭제되었습니다.");
+      } catch (err) {
+        alert("삭제 중 오류 발생");
+      }
+    }
+  });
+});
+</script>
+{% endblock %}
