@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status, filters
 from rest_framework.authentication import SessionAuthentication
 from rest_framework import viewsets
-from .models import Book, Review, Like
+from .models import Book, Review, Like, Author
 from .serializers import BookSerializer, BookDetailSerializer, BookCreateUpdateSerializer, ReviewSerializer, LikeSerializer
 from .pagination import CustomPageNumberPagination
 from .permissions import IsAdminOrReadOnly
@@ -11,6 +11,7 @@ from django.db import IntegrityError
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 
 
@@ -44,7 +45,7 @@ class BookViewSet(viewsets.ModelViewSet):
     
 
 class ReviewViewSet(viewsets.ModelViewSet):
-    queryset = Review.objects.all()
+    queryset = Review.objects.all().order_by('-created_at')
     serializer_class = ReviewSerializer
 
     def perform_create(self, serializer):
@@ -73,3 +74,16 @@ class LikeViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save(user=user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+        
+class AuthorBooksAPIView(APIView):
+    def get(self, request, author_id):
+        author = get_object_or_404(Author, pk=author_id)
+        books = Book.objects.filter(author=author)
+        serializer = BookSerializer(books, many=True)
+
+        return Response({
+            "author": author.author,
+            "book_count": books.count(),
+            "books": serializer.data
+        }, status=status.HTTP_200_OK)

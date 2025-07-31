@@ -7,6 +7,8 @@ from django.contrib.auth import login, logout
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from .serializers import UserRegistrationSerializer, LoginSerializer
+from django.views.generic import TemplateView
+
 
 # 페이지 뷰들
 def login_page(request):
@@ -54,3 +56,7 @@ def logout_view(request):
         return Response({
             'error': '로그아웃 처리 중 오류가 발생했습니다.'
         }, status=status.HTTP_400_BAD_REQUEST)
+
+class permissionissue(TemplateView):
+    def get(self, request):
+        return render(request, 'users/not_access.html')

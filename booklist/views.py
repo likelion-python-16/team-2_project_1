@@ -2,6 +2,9 @@ from rest_framework.views import View
 from django.shortcuts import render
 from .models import Book, Author
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.utils.decorators import method_decorator
+from django.contrib.admin.views.decorators import staff_member_required
 
 # books/
 class BookListView(View):
@@ -16,6 +19,7 @@ class BookDetailView(View):
         return render(request, "books/book_detail.html", {"book": book, "is_liked": is_liked})
     
 
+@method_decorator(staff_member_required(login_url="/users/not_access/"), name='dispatch')
 class BookCreateView(View):
     def get(self, request):
         authors = Author.objects.all()
@@ -47,12 +51,14 @@ class BookCreateView(View):
         return redirect("booklist:list")
     
 
+@method_decorator(staff_member_required(login_url="/users/not_access/"), name='dispatch')
 class BookUpdateView(View):
     def get(self, request, id):
         return render(request, "books/book_update.html", {"book_id": id})
 
 
-# DeleteView - 삭제할 책 정보 확인용
+@method_decorator(staff_member_required(login_url="/users/not_access/"), name='dispatch')
 class BookDeleteView(View):
     def get(self, request, id):
         return render(request, "books/book_delete.html", {"book_id": id})
+    

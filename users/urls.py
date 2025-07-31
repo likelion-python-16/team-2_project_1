@@ -7,6 +7,7 @@ urlpatterns = [
     # 페이지 URL들
     path('login/', views.login_page, name='login_page'),
     path('register/', views.register_page, name='register_page'),
+    path('not_access/', views.permissionissue.as_view(), name='not_access'),
     
     # API URL들
     path('api/register/', views.register, name='api_register'),

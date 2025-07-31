@@ -1,6 +1,6 @@
 from django.db import models
 from users.models import User
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class Author(models.Model):
@@ -40,7 +40,7 @@ class Review(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews')
     content = models.TextField()
-    rating = models.DecimalField(max_digits=2, decimal_places=1, validators=[MinValueValidator(0.0)])
+    rating = models.DecimalField(max_digits=3, decimal_places=1, validators=[MinValueValidator(0.0), MaxValueValidator(10.0)])
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
