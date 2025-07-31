@@ -5,7 +5,7 @@ from rest_framework import viewsets
 from .models import Book, Review, Like, Author
 from .serializers import BookSerializer, BookDetailSerializer, BookCreateUpdateSerializer, ReviewSerializer, LikeSerializer
 from .pagination import CustomPageNumberPagination
-from .permissions import IsAdminOrReadOnly,IsOwnerOrAdmin
+from .permissions import IsAdminOrReadOnly
 from django.db.models import Count, Avg
 from django.db import IntegrityError
 from rest_framework.exceptions import ValidationError
@@ -47,7 +47,6 @@ class BookViewSet(viewsets.ModelViewSet):
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all().order_by('-created_at')
     serializer_class = ReviewSerializer
-    permission_classes = [IsOwnerOrAdmin]
     def perform_create(self, serializer):
         try:
             serializer.save(user=self.request.user)
