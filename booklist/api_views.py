@@ -54,6 +54,18 @@ class ReviewViewSet(viewsets.ModelViewSet):
         except IntegrityError:
             raise ValidationError("이미 이 책에 대한 리뷰를 작성하셨습니다.")
         
+    def update(self, request, *args, **kwargs):
+        review = self.get_object()
+        if review.user != request.user:
+            return Response({"detail": "수정 권한 없음"}, status=403)
+        return super().update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        review = self.get_object()
+        if not request.user.admin:
+            return Response({"detail": "삭제 권한 없음"}, status=403)
+        return super().destroy(request, *args, **kwargs)
+        
 
 class LikeViewSet(viewsets.ModelViewSet):
     queryset = Like.objects.all()
