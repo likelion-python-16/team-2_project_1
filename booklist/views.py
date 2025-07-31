@@ -54,8 +54,40 @@ class BookCreateView(View):
 @method_decorator(staff_member_required(login_url="/users/not_access/"), name='dispatch')
 class BookUpdateView(View):
     def get(self, request, id):
-        return render(request, "books/book_update.html", {"book_id": id})
+        book = get_object_or_404(Book, pk=id)
+        authors = Author.objects.all()
+        return render(request, "books/book_update.html", {
+            "book": book,
+            "authors": authors
+        })
 
+    def post(self, request, id):
+        book = get_object_or_404(Book, pk=id)
+
+        title = request.POST.get("title")
+        description = request.POST.get("description")
+        published_at = request.POST.get("published_at")
+        author_id = request.POST.get("author")
+        author_name = request.POST.get("author_name")
+
+        if author_id:
+            author = get_object_or_404(Author, pk=author_id)
+        elif author_name:
+            author, _ = Author.objects.get_or_create(author=author_name)
+        else:
+            return render(request, "books/book_update.html", {
+                "book": book,
+                "authors": Author.objects.all(),
+                "error": "저자를 선택하거나 새로 입력해야 합니다."
+            })
+
+        book.title = title
+        book.description = description
+        book.published_at = published_at
+        book.author = author
+        book.save()
+
+        return redirect("booklist:list")
 
 @method_decorator(staff_member_required(login_url="/users/not_access/"), name='dispatch')
 class BookDeleteView(View):

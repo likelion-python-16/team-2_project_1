@@ -135,6 +135,13 @@ LOGIN_REDIRECT_URL = '/book/list/'
 LOGOUT_REDIRECT_URL = '/users/login/'
 
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        # 'rest_framework.authentication.TokenAuthentication',  # 👉 나중에 필요하면 추가
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',  # 전체적으로 읽기 허용, 쓰기는 인증 필요
+    ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 5,
-}
+} 

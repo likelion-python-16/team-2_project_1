@@ -43,6 +43,20 @@ class BookViewSet(viewsets.ModelViewSet):
             return BookDetailSerializer
         return BookCreateUpdateSerializer
     
+    def update(self, request, *args, **kwargs):
+        data = request.data.copy()
+
+        author_name = data.get("author_name", "").strip()
+        if author_name and not data.get("author"):
+            author, _ = Author.objects.get_or_create(author=author_name)
+            data["author"] = author.id  # serializer에서 쓸 수 있도록 교체
+
+        # partial=True로 일부 필드만 들어와도 업데이트 가능
+        serializer = self.get_serializer(self.get_object(), data=data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
+    
 
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all().order_by('-created_at')
@@ -59,13 +73,13 @@ class ReviewViewSet(viewsets.ModelViewSet):
         if review.user != request.user:
             return Response({"detail": "수정 권한 없음"}, status=403)
         return super().update(request, *args, **kwargs)
-
+    
     def destroy(self, request, *args, **kwargs):
         review = self.get_object()
-        if not request.user.admin:
+        if not (request.user.admin or review.user == request.user):
             return Response({"detail": "삭제 권한 없음"}, status=403)
         return super().destroy(request, *args, **kwargs)
-        
+            
 
 class LikeViewSet(viewsets.ModelViewSet):
     queryset = Like.objects.all()
