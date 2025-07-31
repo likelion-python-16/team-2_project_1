@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+  <h2>📖 새 도서 등록</h2>
+
+  <form id="bookCreateForm">
+    <label>제목: <input type="text" name="title" required></label><br>
+    <label>저자: 
+        <select name="author" required>
+        {% for author in authors %}
+            <option value="{{ author.id }}">{{ author.author }}</option>
+        {% endfor %}
+        </select>
+    </label><br>
+    <label>출간일: <input type="date" name="published_at" required></label><br>
+    <label>설명: <textarea name="description" required></textarea></label><br>
+    <button type="submit">📚 등록</button>
+  </form>
+</div>
+
+<script>
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== "") {
+    const cookies = document.cookie.split(";");
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      // 이름이 일치하는 쿠키를 찾기
+      if (cookie.startsWith(name + "=")) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+document.getElementById("bookCreateForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const form = e.target;
+  const formData = new FormData(form);
+
+  try {
+    await axios.post("/books/api/books/", formData, {
+      headers: {
+        "X-CSRFToken": getCookie("csrftoken"),
+        "Content-Type": "multipart/form-data"
+      }
+    });
+    alert("도서가 등록되었습니다.");
+    location.href = "/books/list/";
+  } catch (err) {
+    console.error("도서 등록 실패", err.response?.data);
+    alert("도서 등록에 실패했습니다.");
+  }
+});
+</script>
+{% endblock %}

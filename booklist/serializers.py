@@ -26,7 +26,7 @@ class BookSerializer(serializers.ModelSerializer):
         model = Book
         fields = [
             'id', 'title', 'author', 'author_name',
-            'average_rating', 'review_count', 'like_count', 'created_at'
+            'average_rating', 'review_count', 'like_count', 'created_at', 'published_at'
         ]
 
 

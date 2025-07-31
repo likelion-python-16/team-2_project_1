@@ -4,7 +4,9 @@
   <h1>BookReview</h1>
   <div class="user-actions">
     <a href="{% url 'booklist:list' %}" class="nav-link">📖 목록 📖</a>
-
+    {% if request.user.admin %}
+      <a href="{% url 'booklist:create' %}">📚 책 생성하기</a>
+    {% endif %}
     {% if user.is_authenticated %}
       <button id="logoutBtn" class="nav-link logout">🔓 로그아웃</button>
     {% else %}

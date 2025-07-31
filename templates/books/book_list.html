@@ -52,8 +52,9 @@
                 <div class="book-card">
                     <div class="book-title">${book.title}</div>
                     <div>저자: ${book.author_name}</div>
-                    <div>평균 평점: ${book.average_rating ?? "N/A"} ⭐</div>
+                    <div>평균 평점: ${book.average_rating ?? "작성된 리뷰가 없습니다."} ⭐</div>
                     <div>리뷰 수: ${book.review_count}</div>
+                    <div>출간일: ${book.published_at}</div>
                     <div>등록일: ${book.created_at}</div>
                 </div>
             </a>
