@@ -14,6 +14,8 @@
     <div><strong>설명:</strong> {{ book.description }}</div>
   </div>
 
+  <div class="review-card" data-review-id="{{ review.id }}"></div>
+
   <hr>
 
   <h3>✍ 리뷰 작성</h3>
@@ -30,10 +32,16 @@
   <h3>📄 리뷰 목록</h3>
   <div id="reviewList">
     {% for review in book.reviews.all %}
-      <div class="review-card">
+      <div class="review-card" data-review-id="{{ review.id }}">
         <div><strong>{{ review.user.username }}</strong> | {{ review.created_at }}</div>
         <div>⭐ {{ review.rating }}</div>
-        <div>{{ review.content }}</div>
+        <div class="review-content">{{ review.content }}</div> 
+        
+     {% if request.user == review.user %} <!-- 리뷰 수정,삭제 버튼-->
+      <button class="edit-btn"> 수정</button>
+      <button class="delete-btn"> 삭제</button>
+     {% endif %}
+
       </div>
     {% empty %}
       <p>등록된 리뷰가 없습니다.</p>
@@ -42,9 +50,11 @@
 </div>
 
 <script>
+
     document.getElementById("reviewForm").addEventListener("submit", async (e) => {
     e.preventDefault();
-
+    
+    
     const content = document.getElementById("reviewContent").value;
     const rating = document.getElementById("reviewRating").value;
     const messageEl = document.getElementById("reviewMessage");
@@ -71,6 +81,10 @@
             <div><strong>${newReview.user_name}</strong> | ${newReview.created_at}</div>
             <div>⭐ ${newReview.rating}</div>
             <div>${newReview.content}</div>
+            ${newReview.user_id === currentUserId ? `
+              <button class="edit-btn"> [수정]</button>
+              <button class="delete-btn"> [삭제]</button>
+             ` : ""}
         </div>
         `;
 
@@ -107,5 +121,55 @@
     }
     }
     });
+
+    // 리뷰 수정 및 삭제
+  document.addEventListener("DOMContentLoaded", () => {
+    const reviewList = document.getElementById("reviewList");
+
+    reviewList.addEventListener("click", async (e) => {
+      const card = e.target.closest(".review-card");
+      const reviewId = card?.dataset.reviewId;
+      if (!reviewId) return;
+
+    // 수정 버튼 클릭
+    if (e.target.classList.contains("edit-btn")) {
+      const contentEl = card.querySelector(".review-content");
+      const oldContent = contentEl?.innerText ?? "";
+      const newContent = prompt("리뷰를 수정하세요:", oldContent);
+      if (!newContent) return;
+
+      try {
+        const response = await axios.patch(`/books/api/reviews/${reviewId}/`, {
+          content: newContent
+        }, {
+          headers: {
+            "X-CSRFToken": getCookie("csrftoken"),
+            "Content-Type": "application/json"
+          }
+        });
+        contentEl.innerText = response.data.content;
+        alert("리뷰가 수정되었습니다.");
+      } catch (err) {
+        alert("수정 중 오류 발생");
+      }
+    }
+
+    // 삭제 버튼 클릭
+    if (e.target.classList.contains("delete-btn")) {
+      if (!confirm("정말 삭제하시겠습니까?")) return;
+
+      try {
+        await axios.delete(`/books/api/reviews/${reviewId}/`, {
+          headers: { "X-CSRFToken": getCookie("csrftoken") }
+        });
+        card.remove();
+        alert("리뷰가 삭제되었습니다.");
+      } catch (err) {
+        alert("삭제 중 오류 발생");
+      }
+    }
+  });
+});
+
 </script>
 {% endblock %}

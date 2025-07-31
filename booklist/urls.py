@@ -24,3 +24,4 @@ urlpatterns = [
 
 #     path("edit/<int:pk>/", BookEditView.as_view(), name="book_edit"),          # /booklist/edit/1/
 ]
+
