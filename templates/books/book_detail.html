@@ -11,7 +11,7 @@
     <div><strong>등록일:</strong> {{ book.created_at|date:"Y/m/d H:i" }}</div>
     <div><strong>리뷰 수:</strong> {{ book.reviews.count }}</div>
     <div><strong>좋아요:</strong> {{ book.like_count }}</div>
-    <div><strong>평균 평점:</strong> {{ book.average_rating }} ⭐</div>
+    <div><strong>평균 평점:</strong> ⭐ {{ book.average_rating }}</div>
     <div><strong>설명:</strong> {{ book.description }}</div>
   </div>
 
@@ -178,8 +178,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         contentEl.innerText = response.data.content;
-        ratingEl.innerText = response.data.rating;
+        ratingEl.innerText = "⭐ " + response.data.rating;
         alert("리뷰가 수정되었습니다.");
+        setTimeout(() => location.reload(), 100);
       } catch (err) {
         alert("수정 중 오류 발생");
       }

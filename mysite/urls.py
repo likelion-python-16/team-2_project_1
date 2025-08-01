@@ -16,12 +16,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from .views import WelcomeView
 # from drf_yasg.views import get_schema_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('books/', include('booklist.urls')),
     path('users/', include('users.urls')),
+    path('', WelcomeView.as_view()),
 ]
 
 # urlpatterns += [

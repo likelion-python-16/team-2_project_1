@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>👤 마이페이지</h2>
+
+    <h3>개인정보</h3>
+    <ul>
+        <li>유저명: {{ user.username }}</li>
+        <li>이메일: {{ user.email }}</li>
+        <li>관리자 여부: {{ user.is_staff|yesno:"✅ 관리자,❌ 일반유저" }}</li>
+    </ul>
+
+    <hr>
+
+    <h3>❤️ 좋아요 누른 도서 (총 {{ liked_count }}권)</h3>
+    {% if liked_books %}
+    <ul>
+        {% for book in liked_books %}
+        <li><a href="/books/detail/{{ book.id }}/">{{ book.title }}</a></li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>좋아요 누른 도서가 없습니다.</p>
+    {% endif %}
+
+    <hr>
+
+    <h3>📝 리뷰 작성한 도서 (총 {{ reviewed_count }}권)</h3>
+    {% if reviewed_books %}
+    <ul>
+        {% for book in reviewed_books %}
+        <li><a href="/books/detail/{{ book.id }}/">{{ book.title }}</a></li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>작성한 리뷰가 없습니다.</p>
+    {% endif %}
+</div>
+{% endblock %}

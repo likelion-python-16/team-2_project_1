@@ -7,6 +7,7 @@ from .views import (
     BookCreateView,
     BookUpdateView,
     BookDeleteView,
+    MyPageView,
 )
 
 app_name = "booklist"
@@ -25,5 +26,7 @@ urlpatterns = [
     path("detail/<int:id>/", BookDetailView.as_view(), name='detail'),
     path("create/", BookCreateView.as_view(), name="create"),
     path("update/<int:id>/", BookUpdateView.as_view(), name="update"),
-    path("delete/<int:id>/", BookDeleteView.as_view(), name="delete"),  
+    path("delete/<int:id>/", BookDeleteView.as_view(), name="delete"),
+
+    path("mypage/", MyPageView.as_view(), name="mypage"),  
 ]

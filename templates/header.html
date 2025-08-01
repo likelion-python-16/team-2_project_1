@@ -8,6 +8,7 @@
       <a href="{% url 'booklist:create' %}">📚 책 생성하기</a>
     {% endif %}
     {% if user.is_authenticated %}
+      <span><strong><a href="/books/mypage/">{{ request.user }}</a></strong>님, 반갑습니다.</span>
       <button id="logoutBtn" class="nav-link logout">🔓 로그아웃</button>
     {% else %}
       <a href="{% url 'users:login_page' %}" class="nav-link login">🔒 로그인</a>
