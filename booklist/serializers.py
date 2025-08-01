@@ -5,7 +5,10 @@ from .models import Book, Author, Review, Like, User
 class AuthorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Author
-        fields = ['id', 'author']
+        fields = ['id', 'author','books']
+    
+    def get_books(self, obj):
+        return [book.title for book in obj.book_set.all()]
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -14,6 +17,7 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields = ['id', 'user', 'content', 'rating', 'created_at']
+        ref_name = "ReviewSerializer"
 
 
 class BookSerializer(serializers.ModelSerializer):

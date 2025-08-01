@@ -31,21 +31,24 @@
 </div>
 
 <script>
-// URL에서 책 ID 추출
+function getCookie(name) {
+  const value = `; ${document.cookie}`;  // ✅ 백틱(``) 사용
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+}
+
 const bookId = window.location.pathname.split('/')[3];
 
 // 기존 도서 정보 로딩
 document.addEventListener('DOMContentLoaded', async () => {
   try {
-    const response = await axios.get(`/books/api/books/${bookId}/`);
+    const response = await axios.get(`/books/api/books/${bookId}/`);  // ✅ 백틱으로 수정
     const book = response.data;
 
-    // 기존 값 폼에 삽입
     document.getElementById('title').value = book.title;
     document.getElementById('published_at').value = book.published_at;
     document.getElementById('description').value = book.description;
 
-    // 저자 선택
     const authorSelect = document.getElementById('authorSelect');
     for (let option of authorSelect.options) {
       if (option.value == book.author) {
@@ -68,11 +71,48 @@ document.getElementById("bookUpdateForm").addEventListener("submit", async (e) =
   const formData = new FormData(form);
 
   const authorName = form.querySelector("#authorNameInput").value.trim();
-  if (authorName) {
-    formData.append("author_name", authorName);
-    formData.delete("author");  // 기존 선택 무시
+  const selectedAuthor = form.querySelector("#authorSelect").value;
+
+  // 1. 둘 다 입력한 경우 경고
+  if (authorName && selectedAuthor) {
+    alert("⚠️ 기존 저자 선택 또는 새 저자 입력 중 하나만 해주세요.");
+    return;
   }
 
+  // 2. 새 저자만 입력한 경우 → 중복 체크
+  if (authorName && !selectedAuthor) {
+    try {
+      const res = await axios.get("/books/api/authors/");
+      const duplicates = res.data.filter(
+        a => a.author.trim().toLowerCase() === authorName.toLowerCase()
+      );
+
+      if (duplicates.length > 0) {
+        const latestAuthor = duplicates.reduce((latest, current) =>
+          current.id > latest.id ? current : latest
+        );
+
+        const books = latestAuthor.books || [];
+        const bookList = books.length
+          ? `\n\n해당 저자가 작성한 책 목록:\n- ${books.join("\n- ")}`
+          : "";
+
+        const confirmProceed = confirm(
+          `⚠️ '${authorName}'이라는 이름의 저자가 이미 ${duplicates.length}명 존재합니다.${bookList}\n\n정말 새 저자로 등록하시겠습니까?`
+        );
+        if (!confirmProceed) return;
+      }
+
+      formData.append("author_name", authorName);
+      formData.delete("author");
+
+    } catch (err) {
+      alert("⚠️ 저자 중복 확인 중 오류가 발생했습니다.");
+      return;
+    }
+  }
+
+  // PUT 요청
   try {
     await axios.put(`/books/api/books/${bookId}/`, formData, {
       headers: {

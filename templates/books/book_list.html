@@ -37,9 +37,10 @@
     const fetchBooks = async (params = {}) => {
         try {
             const response = await axios.get("/books/api/books/", {
-                params,
-                headers: { "X-CSRFToken": getCookie("csrftoken") }
+            params: { page_size: "all" },  // 👈 여기 중요!
+            headers: { "X-CSRFToken": getCookie("csrftoken") }
             });
+
             const data = response.data;
             renderBooks(data);
             document.getElementById("bookCount").textContent = data.count;
