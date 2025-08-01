@@ -105,7 +105,9 @@ document.getElementById("bookUpdateForm").addEventListener("submit", async (e) =
 
       formData.append("author_name", authorName);
       formData.delete("author");
+      formData.append("force_new_author", "true");
 
+      
     } catch (err) {
       alert("⚠️ 저자 중복 확인 중 오류가 발생했습니다.");
       return;

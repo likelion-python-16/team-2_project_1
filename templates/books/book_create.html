@@ -19,7 +19,7 @@
     <label>(선택) 원하는 저자가 없다면 여기서 추가해주세요:
       <input type="text" name="author_name" id="authorNameInput" placeholder="새 저자 이름">
     </label><br>
-    
+
     <label>출간일: <input type="date" name="published_at" required></label><br>
     <label>설명: <textarea name="description" required></textarea></label><br>
     <button type="submit">📚 등록</button>
@@ -74,7 +74,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         formData.append("author_name", authorName);
         formData.delete("author");
+        formData.append("force_new_author", "true");
 
+        
       } catch (err) {
         alert("저자 중복 확인 중 오류가 발생했습니다.");
         return;
