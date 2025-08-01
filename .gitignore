@@ -30,7 +30,6 @@ db.sqlite3
 node_modules/
 
 # VS Code 및 IDE 설정 파일 제외
-.vscode/
 .idea/
 *.sublime-workspace
 

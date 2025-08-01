@@ -1,7 +1,12 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{% static 'css/book_delete.css' %}">
+{% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="delete-wrapper">
   <h2>🗑️ 도서 삭제</h2>
 
   <div id="bookInfo">
@@ -9,69 +14,43 @@
   </div>
 
   <div id="deleteConfirm" style="display: none;">
-    <p><strong>정말로 이 도서를 삭제하시겠습니까?</strong></p>
-    <p>⚠️ 삭제된 도서는 복구할 수 없습니다.</p>
-    
-    <button id="confirmDelete" style="background-color: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 4px; margin-right: 10px;">
-      🗑️ 삭제
-    </button>
-    <a href="/books/list/" style="background-color: #6c757d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">
-      ↩️ 취소
-    </a>
+    <p class="delete-warning">⚠️ 삭제된 도서는 복구할 수 없습니다. 정말 삭제하시겠습니까?</p>
+
+    <div class="delete-actions">
+      <button id="confirmDelete">🗑️ 삭제</button>
+      <a href="/books/list/">↩️ 취소</a>
+    </div>
   </div>
 </div>
 
 <script>
-function getCookie(name) {
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== "") {
-    const cookies = document.cookie.split(";");
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      if (cookie.startsWith(name + "=")) {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
-  }
-  return cookieValue;
-}
+const bookId = window.location.pathname.split('/')[3];
 
-// URL에서 책 ID 가져오기
-const bookId = window.location.pathname.split('/')[3]; // /books/delete/123/ -> 123
-
-// 페이지 로드시 책 정보 표시
 document.addEventListener('DOMContentLoaded', async () => {
   try {
     const response = await axios.get(`/books/api/books/${bookId}/`);
     const book = response.data;
-    
-    // 책 정보 표시
+
     document.getElementById('bookInfo').innerHTML = `
-      <div style="border: 1px solid #ddd; padding: 15px; border-radius: 5px; background-color: #f8f9fa;">
+      <div class="book-info-box">
         <h3>📖 ${book.title}</h3>
         <p><strong>저자:</strong> ${book.author}</p>
         <p><strong>출간일:</strong> ${book.published_at}</p>
         <p><strong>설명:</strong> ${book.description}</p>
       </div>
     `;
-    
-    // 삭제 확인 버튼 표시
+
     document.getElementById('deleteConfirm').style.display = 'block';
-    
   } catch (err) {
     console.error("도서 정보 로드 실패", err);
     document.getElementById('bookInfo').innerHTML = '<p style="color: red;">도서 정보를 불러올 수 없습니다.</p>';
   }
 });
 
-// 삭제 확인 버튼 클릭
 document.getElementById("confirmDelete").addEventListener("click", async () => {
   try {
     await axios.delete(`/books/api/books/${bookId}/`, {
-      headers: {
-        "X-CSRFToken": getCookie("csrftoken")
-      }
+      headers: { "X-CSRFToken": getCookie("csrftoken") }
     });
     alert("도서가 삭제되었습니다.");
     location.href = "/books/list/";

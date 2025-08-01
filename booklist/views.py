@@ -54,7 +54,8 @@ class BookCreateView(View):
 @method_decorator(staff_member_required(login_url="/users/not_access/"), name='dispatch')
 class BookUpdateView(View):
     def get(self, request, id):
-        return render(request, "books/book_update.html", {"book_id": id})
+        authors = Author.objects.all()
+        return render(request, "books/book_update.html", {"book_id": id, "authors": authors})
 
 
 @method_decorator(staff_member_required(login_url="/users/not_access/"), name='dispatch')
@@ -62,3 +63,18 @@ class BookDeleteView(View):
     def get(self, request, id):
         return render(request, "books/book_delete.html", {"book_id": id})
     
+
+class MyPageView(LoginRequiredMixin, View):
+    def get(self, request):
+        user = request.user
+
+        liked_books = Book.objects.filter(likes__user=user).distinct()
+        reviewed_books = Book.objects.filter(reviews__user=user).distinct()
+
+        return render(request, 'users/mypage.html', {
+            'user': user,
+            'liked_books': liked_books,
+            'reviewed_books': reviewed_books,
+            'liked_count': liked_books.count(),
+            'reviewed_count': reviewed_books.count(),
+        })

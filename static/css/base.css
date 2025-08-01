@@ -1,0 +1,178 @@
+/* 전체 폰트 / 배경 / 색상 기본값 */
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  background-color: #f1f3f5;
+  margin: 0;
+  padding: 0;
+  color: #2d3748;
+}
+
+/* 공통 컨테이너 */
+.container {
+  max-width: 800px;
+  margin: 60px auto;
+  padding: 40px 30px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+}
+
+/* 제목 스타일 */
+h2, h3 {
+  text-align: center;
+  font-size: 1.8em;
+  margin-bottom: 30px;
+  color: #2d3748;
+}
+
+/* 버튼 기본 스타일 */
+button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  font-size: 1em;
+  font-weight: 600;
+  color: #2d3748;
+  background-color: #edf2f7;
+  border: 1px solid #cbd5e0;
+  border-radius: 999px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+button:hover {
+  background-color: #e2e8f0;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+/* 공통 input 스타일 */
+input[type="text"],
+input[type="number"],
+input[type="password"],
+textarea,
+select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1em;
+  background-color: #f9f9f9;
+  box-sizing: border-box;
+  margin-bottom: 15px;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: #6c757d;
+  outline: none;
+}
+
+/* textarea 기본 크기 */
+textarea {
+  resize: vertical;
+  height: 100px;
+}
+
+/* HEADER 영역 */
+header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 0;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+}
+
+header h1 {
+  font-size: 1.8em;
+  margin-bottom: 12px;
+  color: #2d3748;
+}
+
+.nav-links {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.nav-links a,
+.nav-links button {
+  font-weight: 500;
+  text-decoration: none;
+  background: none;
+  border: none;
+  padding: 0;
+  color: #4a5568;
+  font-size: 1em;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover,
+.nav-links button:hover {
+  color: #2d3748;
+}
+
+/* 푸터 스타일 */
+footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 0.9em;
+  color: #777;
+}
+
+/* 🔍 검색 UI 정렬용 */
+.controls-wrapper {
+  position: relative;
+  min-height: 100px;
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+.controls {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;     /* 세로 정렬 */
+  align-items: flex-end;      /* 오른쪽 정렬 */
+  gap: 4px;                   /* 딱 붙은 건 아니고 숨 쉴 정도 */
+}
+
+.controls input,
+.controls select {
+  width: 220px;
+  padding: 6px 10px;          /* padding 줄여서 덜 부해 보이게 */
+  font-size: 0.95em;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9fafb;
+  margin-bottom: 0; /* ㅅㅂ 좀 줄어라 */
+}
+
+.controls button {
+  padding: 6px 14px;
+  font-size: 0.9em;
+  margin-top: 2px;            /* 버튼 위쪽도 살짝만 */
+}
+
+a.mypage {
+  color: #1976d2;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s ease, text-decoration 0.2s ease;
+}
+
+a.mypage:hover {
+  color: #155fa0;
+  text-decoration: underline;
+}

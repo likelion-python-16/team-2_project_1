@@ -1,13 +1,18 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ko">
-<head>
-    {% include "head.html" %}
-</head>
+    <head>
+        {% include "head.html" %}
+        <link rel="stylesheet" href="{% static 'css/base.css' %}">
+        {% block head_extra %}{% endblock %}
+    </head>
 <body>
     {% include "header.html" %}
 
-    {% block content %}
-    {% endblock %}
+    <main class="container">
+        {% block content %}
+        {% endblock %}
+    </main>
 
     {% include "footer.html" %}
 </body>

@@ -7,6 +7,9 @@ class AuthorSerializer(serializers.ModelSerializer):
         model = Author
         fields = ['id', 'author']
 
+    def get_books(self, obj):
+        return [book.title for book in obj.book_set.all()]
+
 
 class ReviewSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField(read_only=True)
@@ -14,6 +17,7 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields = ['id', 'user', 'content', 'rating', 'created_at']
+        ref_name = "ReviewSerializer"
 
 
 class BookSerializer(serializers.ModelSerializer):

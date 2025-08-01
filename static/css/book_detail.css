@@ -1,0 +1,299 @@
+.book-detail-container {
+    max-width: 600px;
+    margin: 30px auto;
+    padding: 20px;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  
+  .book-detail-title {
+    font-size: 1.6rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .book-detail-box {
+    background-color: #fafafa;
+    border: 1px solid #e0e0e0;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+  }
+  
+  .book-detail-box p {
+    margin: 8px 0;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  
+  .book-detail-box strong {
+    color: #333;
+  }
+  
+  .like-button {
+    background-color: #fff3d6;
+    color: #222;
+    border: 1px solid #f0c36d;
+    padding: 8px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 20px;
+  }
+  
+  /* 버튼 hover 효과 */
+  .like-button:hover {
+    background-color: #ffe49a;
+  }
+  
+  /* 수정/삭제 박스 스타일 */
+  .book-detail-action-box {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    background-color: #f6f8fa;
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    margin-bottom: 30px;
+  }
+  
+  .book-detail-action-box a {
+    text-decoration: none;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-weight: 500;
+  }
+  
+  .book-detail-action-box .edit {
+    background-color: #e0f7fa;
+    color: #00796b;
+  }
+  
+  .book-detail-action-box .delete {
+    background-color: #ffebee;
+    color: #c62828;
+  }
+
+  .book-detail-action-box {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    background-color: #f8f9fa;
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    margin: 20px 0 30px 0;
+  }
+  
+  .book-detail-action-box a {
+    text-decoration: none;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+  
+  .book-detail-action-box .edit {
+    background-color: #e0f7fa;
+    color: #00796b;
+  }
+  
+  .book-detail-action-box .edit:hover {
+    background-color: #b2ebf2;
+  }
+  
+  .book-detail-action-box .delete {
+    background-color: #ffebee;
+    color: #c62828;
+  }
+  
+  .book-detail-action-box .delete:hover {
+    background-color: #ffcdd2;
+  }
+
+/* ✅ 수정/삭제 버튼 박스 작게 + 우측 고정 */
+.book-detail-action-box {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    max-width: 200px;       /* 작게 제한 */
+    margin-left: auto;      /* 오른쪽 정렬 */
+    background-color: #f6f8fa;
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  }
+  
+  /* ✅ 평점 input 작게 */
+  .review-rating-wrapper input[type="number"] {
+    width: 200px;
+    padding: 8px;
+    font-size: 0.95rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-top: 8px;
+  }
+/* ✅ 전체 컨트롤 박스를 오른쪽 정렬 */
+.book-detail-controls {
+    display: flex;
+    justify-content: flex-end;
+    margin: 20px 0;
+  }
+  
+  /* ✅ 좋아요 + 수정/삭제 버튼 나란히 */
+  .like-and-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  /* 💛 좋아요 버튼 (기존 스타일 유지 또는 원하는 걸로 바꾸기) */
+  .like-button {
+    background-color: #fff3d6;
+    color: #222;
+    border: 1px solid #f0c36d;
+    padding: 8px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  
+  .like-button:hover {
+    background-color: #ffe49a;
+  }
+  
+  /* ✏️ 수정 / 🗑 삭제 버튼 스타일 */
+  .edit,
+  .delete {
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+  
+  .edit {
+    background-color: #e0f7fa;
+    color: #00796b;
+  }
+  
+  .edit:hover {
+    background-color: #b2ebf2;
+  }
+  
+  .delete {
+    background-color: #ffebee;
+    color: #c62828;
+  }
+  
+  .delete:hover {
+    background-color: #ffcdd2;
+  }
+
+  /* 아래 행: 평점 + 버튼을 한 줄에 정렬 */
+.review-form-bottom-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  
+  /* 평점 input 크기 */
+  #reviewRating {
+    width: 200px;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 0.95rem;
+  }
+  
+  /* 리뷰 등록 버튼 */
+  .review-submit-btn {
+    padding: 8px 16px;
+    background-color: #e3f2fd;
+    color: #1976d2;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  
+  .review-submit-btn:hover {
+    background-color: #bbdefb;
+  }
+  
+  .book-detail-controls {
+    display: flex;
+    justify-content: space-between;  /* 좌우 끝 정렬 */
+    align-items: center;
+    margin: 20px 0;
+  }
+  
+  /* 좋아요 버튼 (왼쪽) */
+  .like-button {
+    background-color: #fff3d6;
+    color: #222;
+    border: 1px solid #f0c36d;
+    padding: 8px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  
+  .like-button:hover {
+    background-color: #ffe49a;
+  }
+  
+  /* 수정/삭제 버튼 오른쪽 정렬 */
+  .action-buttons {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .edit,
+  .delete {
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+  
+  .edit {
+    background-color: #e0f7fa;
+    color: #00796b;
+  }
+  
+  .edit:hover {
+    background-color: #b2ebf2;
+  }
+  
+  .delete {
+    background-color: #ffebee;
+    color: #c62828;
+  }
+  
+  .delete:hover {
+    background-color: #ffcdd2;
+  }

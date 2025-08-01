@@ -5,7 +5,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {% load static %}
-    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+    
+    <!-- 로그인 전용 스타일 불러오기 -->
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+
+    <!-- 쿠키 처리용 JS -->
     <script src="{% static 'js/getCookie.js' %}"></script>
 </head>
 <body>

@@ -1,41 +1,51 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{% static 'css/book_detail.css' %}">
+{% endblock %}
 
 {% block content %}
-<div class="container">
-  <h2>📘 도서 상세 정보</h2>
+<div class="book-detail-container">
+  <div class="book-detail-title">📘 도서 상세 정보</div>
 
-  <div class="book-detail-card">
+  <!-- 도서 정보 박스 ㅈㄷㄱㅈㅂㄷㄱㅂㅈㄷㄱ-->
+  <div class="book-detail-box">
     <div class="book-title">{{ book.title }}</div>
     <div><strong>저자:</strong> {{ book.author.author }}</div>
     <div><strong>출간일:</strong> {{ book.published_at|date:"Y/m/d" }}</div>
     <div><strong>등록일:</strong> {{ book.created_at|date:"Y/m/d H:i" }}</div>
     <div><strong>리뷰 수:</strong> {{ book.reviews.count }}</div>
     <div><strong>좋아요:</strong> {{ book.like_count }}</div>
-    <div><strong>평균 평점:</strong> {{ book.average_rating }} ⭐</div>
+    <div><strong>평균 평점:</strong> ⭐ {{ book.average_rating }}</div>
     <div><strong>설명:</strong> {{ book.description }}</div>
   </div>
 
+<!-- 좋아요는 왼쪽 / 수정 삭제는 오른쪽 -->
+<div class="book-detail-controls">
   <button id="book-like"
-    data-liked="{% if is_liked %}true{% else %}false{% endif %}"
-    class="{% if is_liked %}liked{% endif %}">
-    좋아요
+        data-liked="{% if is_liked %}true{% else %}false{% endif %}"
+        class="like-button {% if is_liked %}liked{% endif %}">
+    💛 좋아요
   </button>
 
-  <hr>
-
   {% if request.user.is_staff %}
-  <a href="/books/update/{{book.id}}">수정</a>
-  <a href="/books/delete/{{book.id}}">삭제</a>
-  <hr>
+  <div class="action-buttons">
+    <a href="/books/update/{{book.id}}" class="edit">수정</a>
+    <a href="/books/delete/{{book.id}}" class="delete">삭제</a>
+  </div>
   {% endif %}
-
+</div>
   <h3>✍ 리뷰 작성</h3>
-  <form id="reviewForm">
+  <form id="reviewForm" class="review-form">
     <textarea id="reviewContent" placeholder="리뷰를 작성해주세요" required></textarea>
-    <input type="number" id="reviewRating" placeholder="평점 (0.0~10.0)" step="1.0" min="0" max="10.0" required>
-    <button type="submit">리뷰 등록</button>
+  
+    <div class="review-form-bottom-row">
+      <input type="number" id="reviewRating" placeholder="평점 (10점 만점)" step="1.0" min="0" max="10.0" required>
+  
+      <button type="submit" class="review-submit-btn">리뷰 등록</button>
+    </div>
   </form>
-
   <div id="reviewMessage"></div>
 
   <hr>
@@ -49,8 +59,8 @@
         <div class="review-content">{{ review.content }}</div>
 
         {% if request.user == review.user %}
-          <button class="edit-btn">수정</button>
-          <button class="delete-btn">삭제</button>
+          <button class="review-action-btn edit-btn">수정</button>
+          <button class="review-action-btn delete-btn">삭제</button>
         {% endif %}
       </div>
     {% empty %}
@@ -178,8 +188,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         contentEl.innerText = response.data.content;
-        ratingEl.innerText = response.data.rating;
+        ratingEl.innerText = "⭐ " + response.data.rating;
         alert("리뷰가 수정되었습니다.");
+        setTimeout(() => location.reload(), 100);
       } catch (err) {
         alert("수정 중 오류 발생");
       }
