@@ -107,14 +107,13 @@ document.getElementById("bookUpdateForm").addEventListener("submit", async (e) =
       formData.delete("author");
       formData.append("force_new_author", "true");
 
-      
     } catch (err) {
       alert("⚠️ 저자 중복 확인 중 오류가 발생했습니다.");
       return;
     }
   }
 
-  // PUT 요청
+  // 3. 도서 수정 시도 (기본)
   try {
     await axios.put(`/books/api/books/${bookId}/`, formData, {
       headers: {
@@ -124,10 +123,34 @@ document.getElementById("bookUpdateForm").addEventListener("submit", async (e) =
     });
     alert("도서가 수정되었습니다.");
     location.href = "/books/list/";
+
   } catch (err) {
-    console.error("도서 수정 실패", err.response?.data);
-    alert("도서 수정에 실패했습니다.");
+    const detail = err.response?.data?.detail;
+    if (detail) {
+      const confirmResult = confirm(
+        `${detail}\n\n⚠️ 그래도 수정하시겠습니까?`
+      );
+      if (!confirmResult) return;
+
+      // ✅ 사용자 확인 후 강제 수정 재시도
+      try {
+        await axios.put(`/books/api/books/${bookId}/?force=true`, formData, {
+          headers: {
+            "X-CSRFToken": getCookie("csrftoken"),
+            "Content-Type": "multipart/form-data"
+          }
+        });
+        alert("도서가 수정되었습니다.");
+        location.href = "/books/list/";
+      } catch (e2) {
+        alert("도서 수정이 최종적으로 실패했습니다.");
+      }
+
+    } else {
+      alert("도서 수정에 실패했습니다.");
+    }
   }
 });
+
 </script>
 {% endblock %}

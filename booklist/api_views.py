@@ -107,10 +107,15 @@ class BookViewSet(viewsets.ModelViewSet):
 
 
     def update(self, request, *args, **kwargs):
+        import re
+        def clean_title(text):
+            return re.sub(r'\s+', '', text).lower()
+
         data = request.data.copy()
         author_name = data.get("author_name", "").strip()
         author_id = data.get("author", "").strip()
         force_new_author = data.get("force_new_author") == "true"
+        force_update = request.query_params.get("force") == "true"
         
     # ✅ 1. 새 저자 강제 생성 요청이 있을 경우
         if author_name and force_new_author:
@@ -133,12 +138,36 @@ class BookViewSet(viewsets.ModelViewSet):
         else:
             return Response({"detail": "⚠️ 저자를 선택하거나 새로 입력해주세요."},
                             status=status.HTTP_400_BAD_REQUEST)
+        
+        # ✅ 4. 중복 도서 검사 (수정 중인 자기 책 제외)
 
-        # 실제 업데이트 실행
+        raw_title = data.get("title", "")
+        clean_input_title = re.sub(r'\s+', '', raw_title).lower()
+        published_at = data.get("published_at", "").strip()
+        author_pk = data.get("author")
+
+        if raw_title and published_at and author_pk and not force_update:
+            same_books = Book.objects.filter(
+                published_at=published_at,
+                author_id=author_pk
+            ).exclude(id=self.get_object().id)
+
+            for book in same_books:
+                if clean_title(book.title) == clean_input_title:
+                    return Response({
+                        "detail": (
+                            f"⚠️ {published_at}에 출판된 '{book.author.author}'의 책으로, "
+                            f"다음 설명을 가진 책이 이미 있습니다:\n"
+                            f"설명: \"{book.description or '설명 없음'}\""
+                        )
+                    }, status=status.HTTP_400_BAD_REQUEST)
+
+        # 5. 저장
         serializer = self.get_serializer(self.get_object(), data=data, partial=True)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         return Response(serializer.data)
+
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
