@@ -27,31 +27,90 @@
 </div>
 
 <script>
-document.getElementById("bookCreateForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("bookCreateForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-  const form = e.target;
-  const formData = new FormData(form);
+    const form = e.target;
+    const formData = new FormData(form);
 
-  const authorName = form.querySelector("#authorNameInput").value.trim();
-  if (authorName) {
-    formData.append("author_name", authorName);
-    formData.delete("author");
-  }
+    const authorName = form.querySelector("#authorNameInput").value.trim();
+    const authorId = form.querySelector("#authorSelect").value;
 
-  try {
-    await axios.post("/books/api/books/", formData, {
-      headers: {
-        "X-CSRFToken": getCookie("csrftoken"),
-        "Content-Type": "multipart/form-data"
+      // ❗️저자 선택 + 새 이름 동시에 입력 시 경고
+    if (authorId && authorName) {
+      alert("⚠️ 저자를 드롭다운에서 선택했거나 새로 입력 중 하나만 작성해주세요.");
+      return;
+    }
+
+    // 새 저자 이름이 입력된 경우
+    if (authorName && !authorId) {
+      try {
+        const res = await axios.get(`/books/api/authors/`);
+        const duplicates = res.data.filter(a => a.author.trim().toLowerCase() === authorName.toLowerCase());
+
+        if (duplicates.length > 0) {
+          const allBooks = duplicates.flatMap(author => author.books || []);
+          const uniqueBooks = [...new Set(allBooks)];
+
+          const bookList = uniqueBooks.length
+            ? `\n\n해당 이름을 가진 저자들이 작성한 책 목록:\n- ${uniqueBooks.join("\n- ")}`
+            : "";
+
+          const confirmResult = confirm(
+            `⚠️ 같은 이름의 저자 "${authorName}"가 이미 ${duplicates.length}명 존재합니다.${bookList}\n\n정말 새 저자를 추가하시겠습니까?`
+          );
+
+          if (!confirmResult) return;
+        }
+
+        formData.append("author_name", authorName);
+        formData.delete("author");
+        formData.append("force_new_author", "true");
+
+        
+      } catch (err) {
+        alert("저자 중복 확인 중 오류가 발생했습니다.");
+        return;
       }
-    });
-    alert("도서가 등록되었습니다.");
-    location.href = "/books/list/";
-  } catch (err) {
-    console.error("도서 등록 실패", err.response?.data);
+    }
+
+try {
+  await axios.post("/books/api/books/", formData, {
+    headers: {
+      "X-CSRFToken": getCookie("csrftoken"),
+      "Content-Type": "multipart/form-data"
+    }
+  });
+  alert("도서가 등록되었습니다.");
+  location.href = "/books/list/";
+} catch (err) {
+  const detail = err.response?.data?.detail;
+  if (detail) {
+    const confirmResult = confirm(
+      `${detail}\n\n⚠️ 그래도 등록하시겠습니까?`
+    );
+    if (!confirmResult) return;
+
+    // ✅ 사용자 확인 후 강제 등록 재시도
+    try {
+      await axios.post("/books/api/books/?force=true", formData, {
+        headers: {
+          "X-CSRFToken": getCookie("csrftoken"),
+          "Content-Type": "multipart/form-data"
+        }
+      });
+      alert("도서가 등록되었습니다.");
+      location.href = "/books/list/";
+    } catch (e2) {
+      alert("도서 등록이 최종적으로 실패했습니다.");
+    }
+  } else {
     alert("도서 등록에 실패했습니다.");
   }
+}
+
+  });
 });
 </script>
 {% endblock %}

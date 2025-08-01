@@ -1,23 +1,30 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{% static 'css/book_list.css' %}">
+{% endblock %}
 
 {% block content %}
 <div class="container">
 <h2>📚 도서 목록</h2>
 
-<div class="controls">
-    <input type="text" id="searchInput" placeholder="도서 제목 검색">
-    <select id="orderingSelect">
-        <option value="">-- 정렬 선택 --</option>
-        <option value="created_at">등록일 오름차순</option>
-        <option value="-created_at">등록일 내림차순</option>
-        <option value="published_at">출간일 오름차순</option>
-        <option value="-published_at">출간일 내림차순</option>
-        <option value="annotated_review_count">리뷰 적은 순</option>
-        <option value="-annotated_review_count">리뷰 많은 순</option>
-        <option value="annotated_average_rating">평균평점 낮은 순</option>
-        <option value="-annotated_average_rating">평균평점 높은 순</option>
-    </select>
-    <button id="searchBtn">🔍 검색</button>
+<div class="controls-wrapper">
+    <div class="controls">
+        <input type="text" id="searchInput" placeholder="도서 제목 또는 작가 검색">
+        <select id="orderingSelect">
+            <option value="">-- 정렬 선택 --</option>
+            <option value="created_at">등록일 오름차순</option>
+            <option value="-created_at">등록일 내림차순</option>
+            <option value="published_at">출간일 오름차순</option>
+            <option value="-published_at">출간일 내림차순</option>
+            <option value="annotated_review_count">리뷰 적은 순</option>
+            <option value="-annotated_review_count">리뷰 많은 순</option>
+            <option value="annotated_average_rating">평균평점 낮은 순</option>
+            <option value="-annotated_average_rating">평균평점 높은 순</option>
+        </select>
+        <button id="searchBtn">🔍 검색</button>
+    </div>
 </div>
 
 <div id="bookCountWrapper">
@@ -32,12 +39,12 @@
     const bookListEl = document.getElementById("bookList");
     const paginationEl = document.getElementById("pagination");
 
-    const PAGE_SIZE = 5;
+    const PAGE_SIZE = 6;
 
     const fetchBooks = async (params = {}) => {
         try {
             const response = await axios.get("/books/api/books/", {
-                params,
+                params: { page_size: PAGE_SIZE, ...params },
                 headers: { "X-CSRFToken": getCookie("csrftoken") }
             });
             const data = response.data;

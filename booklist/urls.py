@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .api_views import BookViewSet, ReviewViewSet, LikeViewSet, AuthorBooksAPIView
+from .api_views import BookViewSet, ReviewViewSet, LikeViewSet, AuthorBooksAPIView, AuthorListAPIView
 from .views import (
     BookListView,
     BookDetailView,
@@ -19,6 +19,7 @@ router.register(r'likes', LikeViewSet)
 
 urlpatterns = [
     path('api/', include(router.urls)),
+    path("api/authors/", AuthorListAPIView.as_view(), name="author-list"),
     path("api/authors/<int:author_id>/books/", AuthorBooksAPIView.as_view(), name="author-books"),
 
     # 템플릿
